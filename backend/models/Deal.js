@@ -1,29 +1,11 @@
-const { DataTypes } = require('sequelize')
-const db = require('../db.js')
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const Deal = db.define('deals', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-        unique: true
-    },
-    name: {
-        type: DataTypes.TEXT,
-        unique: true,
-        allowNull: false
-    },
-    amount: {
-        type: DataTypes.INTEGER,
-    },
-    currency: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    type: {
-        type: DataTypes.TEXT,
-        allowNull: false
-    }
-})
+const Deal = sequelize.define('Deal', {
+  dealNumber: { type: DataTypes.INTEGER },
+  date: { type: DataTypes.DATE },
+  factory: { type: DataTypes.STRING },
+  fuelType: { type: DataTypes.STRING }
+});
 
-module.exports = Deal
+module.exports = Deal;

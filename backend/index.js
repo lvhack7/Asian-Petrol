@@ -1,28 +1,27 @@
 const express = require('express');
-const routes = require('./routes');
-const db = require('./db.js')
-const cors = require('cors')
+const cors = require('cors');
+const { sequelize } = require('./models');
+
+const authRoutes = require('./routes/authRoutes');
+const dealRoutes = require('./routes/dealRoutes');
 
 const app = express();
-const PORT = 5500;
-
-app.use(cors())
 app.use(express.json());
+app.use(cors());
 
-app.use('/api', routes);
+app.use('/api/auth', authRoutes);
+app.use('/api/deals', dealRoutes);
 
-async function startServer() { 
+async function start() {
     try {
-        await db.authenticate();
-        await db.sync()
-        console.log('Connection has been established successfully.');
-        app.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
+        await sequelize.authenticate()
+        await sequelize.sync()
+        app.listen(5500, () => {
+            console.log('Server is running on port 5500');
         });
-    } catch (error) {
-        console.error('Unable to connect to the database:', error);
+    } catch(e) {
+        console.log(e)
     }
 }
 
-
-startServer()
+start()

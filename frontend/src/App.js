@@ -1,23 +1,18 @@
-import { useEffect, useState } from "react";
-import Deals from "./components/Deals";
-import Login from "./components/Login";
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch, Routes, BrowserRouter } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import DealsPage from './pages/DealsPage';
 
-function App() {
-
-	const [loggedIn, setLoggedIn] = useState(false)
-
-	useEffect(() => {
-		if (localStorage.getItem('token')) setLoggedIn(true)
-	}, [])
-
-
-	return (
-		<div style={{padding: '12px'}}>
-			{
-				loggedIn ? <Deals/> : <Login/>
-			}
-		</div>
-	);
-}
+const App = () => {
+  return (
+	<BrowserRouter>
+		<Routes>
+			<Route path="/login" element={<LoginPage/>} />
+			<Route path="/deals" element={<DealsPage/>} />
+			<Route path="/" element={<LoginPage/>} />
+		</Routes>
+	</BrowserRouter>
+  );
+};
 
 export default App;
