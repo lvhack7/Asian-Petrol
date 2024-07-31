@@ -1,35 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, notification } from 'antd';
 import dealService from '../services/dealService';
-import DealFormModal from './DealForm';
+import DealCreate from './DealForm';
+import DealEdit from './DealEdit';
+
+
+const getStatus = (record) => {
+  if (record.Supplier) {
+    if (record.Buyer) {
+      return "Налив";
+    } else {
+      return "В пути";
+    }
+  }
+  return "Новый";
+};
 
 const formatDate = (isoString) => {
   const date = new Date(isoString);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  return `${day}.${month}.${year}`;
+  return `${month}/${year}`;
 };
 
 const DealsList = () => {
-  const [deals, setDeals] = useState([]);
+  const [deals, setDeals] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [editModal, setEditModal] = useState(false)
   const [editRecord, setEditRecord] = useState(null);
 
-  const handleCreateDeal = async (values, formType) => {
-    const { dealNumber, date, factory, fuelType, ...rest } = values;
-    const body = {
-      dealNumber,
-      date,
-      factory,
-      fuelType,
-      type: formType,
-      data: { ...rest },
-    };
-    console.log(body);
+  useEffect(() => {
+    fetchDeals();
+  }, []);
 
+  const onCreate = async (values) => {
     try {
-      await dealService.createDeal(body);
+      await dealService.createDeal(values);
       await fetchDeals();
       notification.success({ message: 'Сделка успешно сохранена!' });
     } catch (error) {
@@ -39,13 +46,22 @@ const DealsList = () => {
     }
   };
 
-  useEffect(() => {
-    fetchDeals();
-  }, []);
+  const onUpdate = async (values) => {
+    try {
+      await dealService.updateDeal(values)
+      await fetchDeals();
+      notification.success({ message: 'Сделка успешно сохранена!' });
+    } catch (error) {
+      notification.error({ message: 'Не удалось сохранить сделку!' });
+    } finally {
+      setEditModal(false);
+    }
+  }
 
   const fetchDeals = async () => {
     try {
       const { data } = await dealService.getDeals();
+      console.log("DATA: ", data)
       setDeals(data);
     } catch (error) {
       localStorage.removeItem('token');
@@ -63,6 +79,18 @@ const DealsList = () => {
     },
     { title: 'Завод', dataIndex: 'factory', key: 'factory' },
     { title: 'Вид ГСМ', dataIndex: 'fuelType', key: 'fuelType' },
+    { title: '% Серы', dataIndex: 'sulfur', key: 'sulfur' },
+    {
+      title: 'Статус',
+      key: 'status',
+      render: (text, record) => getStatus(record),
+      filters: [
+        { text: 'Налив', value: 'Налив' },
+        { text: 'В пути', value: 'В пути' },
+        { text: 'Новый', value: 'Новый' }
+      ],
+      onFilter: (value, record) => getStatus(record) === value
+    },
     {
       title: 'Действия',
       key: 'actions',
@@ -70,19 +98,8 @@ const DealsList = () => {
         <Button
           type="link"
           onClick={() => {
-            const {dealNumber, date, factory, fuelType, ...rest} = record
-            const tempData = {...rest}
-            let type = ''
-            if (tempData['Supplier']) type = 'Supplier'
-            if (tempData['Buyer']) type = 'Buyer'
-            if (tempData['Forwarder']) type = 'Forwarder'
-            
-            const data = tempData[type]
-            const finalObj = {
-              ...data, dealNumber, date, factory, fuelType, type: type.toLocaleLowerCase()
-            }
-            setEditRecord(finalObj);
-            setModalVisible(true);
+            setEditRecord(record);
+            setEditModal(true);
           }}
         >
           Редактировать
@@ -102,11 +119,16 @@ const DealsList = () => {
       >
         Создать новую сделку +
       </Button>
-      <Table dataSource={deals} columns={columns} rowKey="id" />
-      <DealFormModal
+      <Table dataSource={deals} columns={columns} />
+      <DealCreate
         visible={modalVisible}
-        onCreate={handleCreateDeal}
+        onCreate={onCreate}
         onCancel={() => setModalVisible(false)}
+      />
+      <DealEdit
+        visible={editModal}
+        onCreate={onUpdate}
+        onCancel={() => setEditModal(false)}
         initialValues={editRecord}
       />
     </div>

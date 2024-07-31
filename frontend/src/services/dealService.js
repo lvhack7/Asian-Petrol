@@ -6,8 +6,8 @@ const createDeal = (deal) => {
   return axios.post(API_URL, deal, { headers: { Authorization: localStorage.getItem('token') } });
 };
 
-const updateDeal = (id, deal) => {
-  return axios.put(API_URL + id, deal, { headers: { Authorization: localStorage.getItem('token') } });
+const updateDeal = (deal) => {
+  return axios.put(API_URL, deal, { headers: { Authorization: localStorage.getItem('token') } });
 };
 
 const getDeals = () => {

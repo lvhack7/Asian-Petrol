@@ -1,33 +1,76 @@
-const { Deal, Supplier, Buyer, Forwarder } = require('../models');
+const { Deal, Supplier, Buyer, Forwarder, CompanyGroup } = require('../models');
 
 exports.createDeal = async (req, res) => {
-  const { dealNumber, date, factory, fuelType, type, data } = req.body;
+  const data = req.body;
 
-  let deal = await Deal.findOne({where: {dealNumber}});;
+  let deal = await Deal.create(data)
 
-  if (deal) {
-    // Update existing deal
-    await deal.update({ dealNumber, date, factory, fuelType });
+  return res.json(deal);
+};
 
-    if (type === "supplier") await Supplier.update(data, { where: { dealId: deal.id } });
-    if (type === "buyer") await Buyer.update(data, { where: { dealId: deal.id } });
-    if (type === "forwarder") await Forwarder.update(data, { where: { dealId: deal.id } });
-  } else {
-    // Create new deal
-    deal = await Deal.create({ dealNumber, date, factory, fuelType });
-
-    if (type === "supplier") await Supplier.create({ ...data, dealId: deal.id });
-    if (type === "buyer") await Buyer.create({ ...data, dealId: deal.id });
-    if (type === "forwarder") await Forwarder.create({ ...data, dealId: deal.id });
+exports.updateDeal = async (req, res) => {
+  const {header, supplier, buyer, forwarder, company} = req.body
+  let deal = await Deal.findOne({where: {dealNumber: header.dealNumber}})
+  if (!deal) {
+    return res.status(400).json({message: "Not found"})
   }
 
-  res.json(deal);
-};
+  await deal.update(header)
+
+  if (supplier) {
+    const [supply, created] = await Supplier.findOrCreate({
+      where: { dealId: deal.id }, // Criteria to find the user
+      defaults: supplier // Data to use if creating a new user
+    });
+  
+    if (!created) {
+      // If the user already exists, update with new data
+      await supply.update(supplier);
+    }
+  }
+
+  if (buyer) {
+    const [buy, created] = await Buyer.findOrCreate({
+      where: { dealId: deal.id }, // Criteria to find the user
+      defaults: buyer // Data to use if creating a new user
+    });
+  
+    if (!created) {
+      // If the user already exists, update with new data
+      await buy.update(supplier);
+    }
+  }
+  if (forwarder) {
+    const [forward, created] = await Forwarder.findOrCreate({
+      where: { dealId: deal.id }, // Criteria to find the user
+      defaults: forwarder // Data to use if creating a new user
+    });
+  
+    if (!created) {
+      // If the user already exists, update with new data
+      await forward.update(supplier);
+    }
+  }
+
+  if(company) {
+    const [com, created] = await CompanyGroup.findOrCreate({
+      where: { dealId: deal.id }, // Criteria to find the user
+      defaults: company // Data to use if creating a new user
+    });
+  
+    if (!created) {
+      // If the user already exists, update with new data
+      await com.update(company);
+    }
+  }
+
+  return res.json(deal)
+}
 
 exports.getDeals = async (req, res) => {
   const deals = await Deal.findAll({
     order: [['dealNumber', 'ASC']],
-    include: [Supplier, Buyer, Forwarder]
+    include: { all: true }
   });
-  res.json(deals);
+  return res.json(deals);
 };

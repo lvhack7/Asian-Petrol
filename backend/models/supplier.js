@@ -4,16 +4,16 @@ const sequelize = require('../config/database');
 const Deal = require('./deal');
 
 const Supplier = sequelize.define('Supplier', {
-  name: { type: DataTypes.STRING },
-  contractNumber: { type: DataTypes.STRING },
-  volume: { type: DataTypes.FLOAT },
-  amount: { type: DataTypes.FLOAT },
-  deliveryBasis: { type: DataTypes.STRING },
-  fixationCondition: { type: DataTypes.STRING },
-  quotation: { type: DataTypes.FLOAT },
-  discount: { type: DataTypes.FLOAT },
-  price: { type: DataTypes.FLOAT },
-  volumeFilled: { type: DataTypes.FLOAT },
+  name: { type: DataTypes.TEXT },
+  contractNumber: { type: DataTypes.TEXT },
+  volume: { type: DataTypes.TEXT },
+  amount: { type: DataTypes.TEXT },
+  deliveryBasis: { type: DataTypes.TEXT },
+  fixationCondition: { type: DataTypes.TEXT },
+  quotation: { type: DataTypes.TEXT },
+  discount: { type: DataTypes.TEXT },
+  price: { type: DataTypes.TEXT },
+  volumeFilled: { type: DataTypes.TEXT },
   fillDate: { type: DataTypes.DATE }
 });
 
