@@ -1,18 +1,24 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Switch, Routes, BrowserRouter } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Switch, Routes, BrowserRouter, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DealsPage from './pages/DealsPage';
+import { ReferencePage } from './pages/ReferencePage';
+import Layout from './components/Layout';
 
 const App = () => {
-  return (
-	<BrowserRouter>
-		<Routes>
-			<Route path="/login" element={<LoginPage/>} />
-			<Route path="/deals" element={<DealsPage/>} />
-			<Route path="/" element={<LoginPage/>} />
-		</Routes>
-	</BrowserRouter>
-  );
+
+	return (
+		<BrowserRouter>
+			<Routes>
+				<Route path='/' element={<Layout/>}>
+					<Route index element={<DealsPage/>} />
+					<Route path='reference' element={<ReferencePage/>} />
+				</Route>
+				<Route path="login" element={<LoginPage/>} />
+				<Route path='*' element={<Navigate to='login' />} />
+			</Routes>
+		</BrowserRouter>
+	);
 };
 
 export default App;

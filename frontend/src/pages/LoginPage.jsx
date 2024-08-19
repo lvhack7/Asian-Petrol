@@ -5,7 +5,7 @@ import { Navigate } from 'react-router-dom';
 const LoginPage = () => {
 
     if (localStorage.getItem("token")) {
-        return <Navigate to={"/deals"} />
+        return <Navigate to={"/"} />
     }
 
     return <LoginForm />;

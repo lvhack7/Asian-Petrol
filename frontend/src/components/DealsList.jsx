@@ -48,6 +48,7 @@ const DealsList = () => {
 
   const onUpdate = async (values) => {
     try {
+      console.log(values)
       await dealService.updateDeal(values)
       await fetchDeals();
       notification.success({ message: 'Сделка успешно сохранена!' });
@@ -79,7 +80,7 @@ const DealsList = () => {
     },
     { title: 'Завод', dataIndex: 'factory', key: 'factory' },
     { title: 'Вид ГСМ', dataIndex: 'fuelType', key: 'fuelType' },
-    { title: '% Серы', dataIndex: 'sulfur', key: 'sulfur' },
+    { title: '% Серы', dataIndex: 'sulfur', key: 'sulfur', render: (text) => `${text}%` },
     {
       title: 'Статус',
       key: 'status',

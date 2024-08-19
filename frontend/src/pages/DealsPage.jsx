@@ -4,10 +4,6 @@ import {Navigate} from 'react-router-dom'
 
 const DealsPage = () => {
 
-  if (!localStorage.getItem("token")) {
-    return <Navigate to="/login" />
-  }
-
   return (
     <div>
       <DealsList />

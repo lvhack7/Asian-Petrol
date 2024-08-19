@@ -17,7 +17,9 @@ const Forwarder = sequelize.define('Forwarder', {
   excessTransferred: {type: DataTypes.TEXT},
   penaltiesHigh: { type: DataTypes.TEXT },
   penaltiesTransferred: {type: DataTypes.TEXT},
-  additionalCosts: { type: DataTypes.TEXT }
+  additionalCosts: { type: DataTypes.TEXT },
+  volumeFilled: {type: DataTypes.TEXT},
+  fillDate: {type: DataTypes.DATE}
 });
 
 Forwarder.belongsTo(Deal, { foreignKey: 'dealId' });

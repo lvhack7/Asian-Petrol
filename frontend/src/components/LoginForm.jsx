@@ -13,12 +13,12 @@ const LoginForm = () => {
             const { data } = await authService.login(username, password);
             localStorage.setItem('token', data.token);
             notification.success({ message: 'Login successful!' });
-            navigate("/deals")
+            navigate("/")
         } catch (error) {
             notification.error({ message: 'Login failed!' });
         }
     };
-
+                                
     return (
         <Form>
             <Form.Item label="Username">
