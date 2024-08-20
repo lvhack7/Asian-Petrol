@@ -18,8 +18,8 @@ async function start() {
     try {
         await sequelize.authenticate()
         await sequelize.sync()
-        app.listen(5500, () => {
-            console.log('Server is running on port 5500');
+        app.listen(5501, () => {
+            console.log('Server is running on port 5501');
         });
     } catch(e) {
         console.log(e)
