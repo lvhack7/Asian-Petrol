@@ -1,7 +1,7 @@
 // Supplier Model (models/supplier.js)
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const Deal = require('./deal');
+const Deal = require('./Deal');
 const Price = require('./price');
 
 const Supplier = sequelize.define('Supplier', {

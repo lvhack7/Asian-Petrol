@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const Deal = require('./deal');
+const Deal = require('./Deal');
 
 const Buyer = sequelize.define('Buyer', {
   name: { type: DataTypes.TEXT },

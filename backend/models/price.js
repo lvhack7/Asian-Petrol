@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Supplier = require('./supplier');
-const Deal = require('./deal');
+const Deal = require('./Deal');
 const Forwarder = require('./forwarder');
 
 const Price = sequelize.define('Price', {
