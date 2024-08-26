@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5501/api/auth/' //'https://ap-api.finpeak.kz/api/auth/';
+const API_URL = 'https://ap-api.finpeak.kz/api/auth/';
 
 const register = (username, password, role) => {
   return axios.post(API_URL + 'register', { username, password, role });

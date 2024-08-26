@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5501/api/deals/';
+const API_URL = 'https://ap-api.finpeak.kz/api/deals/';
 
 const createDeal = (deal) => {
   return axios.post(API_URL, deal, { headers: { Authorization: localStorage.getItem('token') } });
