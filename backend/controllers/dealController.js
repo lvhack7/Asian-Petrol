@@ -50,7 +50,7 @@ exports.updateDeal = async (req, res) => {
   
     if (!created) {
       // If the user already exists, update with new data
-      await buy.update(supplier);
+      await buy.update(buyer);
     }
 
     // Delete all existing prices for the supplier
@@ -75,7 +75,7 @@ exports.updateDeal = async (req, res) => {
   
     if (!created) {
       // If the user already exists, update with new data
-      await forward.update(supplier);
+      await forward.update(forwarder);
     }
   }
 

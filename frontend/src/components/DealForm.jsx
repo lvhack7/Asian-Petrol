@@ -47,7 +47,17 @@ const DealCreate = ({ visible, onCreate, onCancel }) => {
     >
       <Form form={form} layout="vertical">
         <Form.Item name="dealNumber" label="# Сделки" rules={[{ required: true }]}>
-          <Input type='number' />
+          <Input 
+            type='number'
+            addonBefore={
+              <Form.Item name="type" noStyle>
+                <Select style={{ width: 70 }}>
+                  <Select.Option value="KZ">KZ</Select.Option>
+                  <Select.Option value="KG">KG</Select.Option>
+                </Select>
+            </Form.Item>
+            }  
+          />
         </Form.Item>
         <Form.Item name="date" label="Дата" rules={[{ required: true }]}>
           <DatePicker picker='month' />

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://ap-api.finpeak.kz/api/reference';
+const API_URL = 'http://localhost:5501/api/reference';
 
 const createRef = (ref) => {
   return axios.post(API_URL, ref, { headers: { Authorization: localStorage.getItem('token') } });

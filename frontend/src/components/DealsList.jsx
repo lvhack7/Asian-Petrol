@@ -74,13 +74,14 @@ const DealsList = () => {
     { title: '# Сделки', dataIndex: 'dealNumber', key: 'dealNumber',
       sorter: (a, b) => Number(a.dealNumber) - Number(b.dealNumber)
     },
-    { title: 'Дата', dataIndex: 'date', key: 'date', 
-      render: (text) => formatDate(text), 
-      sorter: (a, b) => new Date(a.date) - new Date(b.date) 
-    },
+    // { title: 'Дата', dataIndex: 'date', key: 'date', 
+    //   render: (text) => formatDate(text), 
+    //   sorter: (a, b) => new Date(a.date) - new Date(b.date) 
+    // },
     { title: 'Завод', dataIndex: 'factory', key: 'factory' },
     { title: 'Вид ГСМ', dataIndex: 'fuelType', key: 'fuelType' },
-    { title: '% Серы', dataIndex: 'sulfur', key: 'sulfur', render: (text) => `${text}%` },
+    { title: 'Тоннаж Налива', dataIndex: ['Supplier', 'fillTon'], key: 'fillTonSupp' },
+    { title: 'Тоннаж Отгрузки', dataIndex: ['Buyer', 'fillTon'], key: 'fillTonBuyer' },
     {
       title: 'Статус',
       key: 'status',

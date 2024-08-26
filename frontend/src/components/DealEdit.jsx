@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Radio, DatePicker, Select, Space, Button } from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, Radio, DatePicker, Select, Space, Button, Row, Col, Typography } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import 'dayjs/locale/ru';
 import refService from '../services/refService';
 
+dayjs.extend(utc); // Extend dayjs with UTC plugin
+dayjs.locale('ru');
 
 const SupplierForm = ({initialValues, onChange}) => {
     const [form] = Form.useForm();
@@ -34,11 +38,14 @@ const SupplierForm = ({initialValues, onChange}) => {
 
     useEffect(() => {
         if (initialValues) {
+            console.log("IN2: ", initialValues)
             form.setFieldsValue({
                 ...initialValues,
-                amount: initialValues?.Prices?.length > 0 ? Number(initialValues?.Prices[0].price) * Number(initialValues?.volume) : '',
-                fillDate: initialValues?.fillDate ? initialValues.fillDate.split('T')[0] : ''
+                amount: initialValues?.Prices?.length > 0 ? Number(initialValues?.Prices[0]?.price) * Number(initialValues?.volume) : '',
+                fillDate: initialValues?.fillDate ? dayjs.utc(initialValues.fillDate) : null
             })
+        } else {
+            form.resetFields()
         }
     }, [initialValues])
 
@@ -142,7 +149,13 @@ const SupplierForm = ({initialValues, onChange}) => {
                     >
                     <Input placeholder="Комментарии" />
                     </Form.Item>
-                    <MinusCircleOutlined className='text-red-500 text-xl' onClick={() => remove(name)} />
+                    <Button
+                  type="danger"
+                  className='text-red-500'
+                  onClick={() => remove(name)}
+                >
+                  Удалить
+                </Button>
                 </Space>
                 </div>
             ))}
@@ -154,6 +167,22 @@ const SupplierForm = ({initialValues, onChange}) => {
           </>
         )}
       </Form.List>
+      <Form.Item label="Налив">
+        <Row gutter={16}>
+            <Col span={12}>
+                <Form.Item name="fillTon" label="Тоннаж" rules={[{ required: true, message: 'Please enter the tonnage' }]}>
+                <Input />
+                </Form.Item>
+            </Col>
+            <Col span={12}>
+                <Form.Item name="fillDate" label="Дата" rules={[{ required: true, message: 'Please enter the date' }]}>
+                    <DatePicker
+                        className='w-full'
+                    />
+                </Form.Item>
+            </Col>
+        </Row>
+    </Form.Item>
     </Form>
     )
 }
@@ -188,16 +217,20 @@ const BuyerForm = ({initialValues, onChange}) => {
     useEffect(() => {
         console.log("INIT: ", initialValues)
         if (initialValues) {
-            form.setFieldsValue({
+            const updatedValues = {
                 ...initialValues,
-                dischargeDate: initialValues?.dischargeDate ? initialValues.dischargeDate.split('T')[0] : ''
-            })
+                dischargeDate: initialValues?.dischargeDate ? dayjs.utc(initialValues?.dischargeDate) : null,
+                fillDate: initialValues?.fillDate ? dayjs.utc(initialValues?.fillDate) : null
+            }
+            form.setFieldsValue(updatedValues)
+        } else {
+            form.resetFields()
         }
     }, [initialValues])
 
     return (
-        <Form
-            initialValues={initialValues}
+        <Form  
+            form={form}
             onValuesChange={onChange}
             layout="vertical"
         >
@@ -295,7 +328,13 @@ const BuyerForm = ({initialValues, onChange}) => {
                         >
                         <Input placeholder="Комментарии" />
                         </Form.Item>
-                        <MinusCircleOutlined className='text-red-500 text-xl' onClick={() => remove(name)} />
+                        <Button
+                            type="danger"
+                            className='text-red-500'
+                            onClick={() => remove(name)}
+                        >
+                            Удалить
+                        </Button>
                     </Space>
                 </div>
             ))}
@@ -315,17 +354,43 @@ const BuyerForm = ({initialValues, onChange}) => {
             <Input />
         </Form.Item>
         <Form.Item name="dischargeDate" label="Дата" rules={[{ required: true }]}>
-            <Input type='date' />
+            <DatePicker/>
         </Form.Item>
+        </Form.Item>
+        <Form.Item label="Отгузка">
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Form.Item name="fillTon" label="Тоннаж" rules={[{ required: true, message: 'Please enter the tonnage' }]}>
+                    <Input />
+                    </Form.Item>
+                </Col>
+                <Col span={12}>
+                    <Form.Item name="fillDate" label="Дата" rules={[{ required: true, message: 'Please enter the date' }]}>
+                        <DatePicker
+                            className='w-full'
+                        />
+                    </Form.Item>
+                </Col>
+            </Row>
         </Form.Item>
     </Form>
     )
 }
 
 const ForwarderForm = ({initialValues, onChange}) => {
+    const [form] = Form.useForm()
+
+    useEffect(() => {
+        if (initialValues) {
+            form.setFieldsValue(initialValues)
+        } else {
+            form.resetFields()
+        }
+    }, [initialValues])
+
     return (
         <Form
-        initialValues={initialValues}
+        form={form}
         onValuesChange={onChange}
         layout="vertical"
         >
@@ -401,12 +466,13 @@ const CompanyForm = ({initialValues, onChange}) => {
     
     // Convert an array of objects to a comma-separated string for form submissio
     useEffect(() => {
-        console.log("INIT: ", initialValues)
         if (initialValues) {
             form.setFieldsValue({
                 ...initialValues,
                 names: parseCommaSeparatedString(initialValues.names)
             })
+        } else {
+            form.resetFields()
         }
         fetchCompany()
     }, [])
@@ -496,17 +562,19 @@ const DealEdit = ({ visible, onCreate, onCancel, initialValues }) => {
     useEffect(() => {
         if (initialValues) {
             console.log(initialValues)
-            const {dealNumber, date, factory, fuelType, sulfur, Supplier, Buyer, Forwarder, CompanyGroup} = initialValues
-            form.setFieldsValue({dealNumber, date: dayjs(date), factory, fuelType, sulfur});
+            const {dealNumber, date, factory, fuelType, type, sulfur, Supplier, Buyer, Forwarder, CompanyGroup} = initialValues
+            form.setFieldsValue({dealNumber, date: date ? dayjs(date) : null, factory, fuelType, sulfur, type});
             
             setSupplier(Supplier)
             setBuyer(Buyer)
             setForwarder(Forwarder)
             setCompany(CompanyGroup)
+        } else {
+            form.resetFields()
         }
 
         fetchItems()
-    }, [initialValues]);
+    }, [initialValues, form]);
 
     const fetchItems = async () => {
         try {
@@ -531,14 +599,12 @@ const DealEdit = ({ visible, onCreate, onCancel, initialValues }) => {
         okText='Обновить'
         cancelText="Отменить"
         onCancel={() => {
-            form.resetFields();
             onCancel();
         }}
         onOk={() => {
             form
             .validateFields()
             .then((values) => {
-                form.resetFields();
                 const obj = {header: {...values, date: dayjs(values.date).startOf('month').toISOString()}, supplier, buyer, forwarder, company}
                 onCreate(obj);
             })
@@ -549,7 +615,15 @@ const DealEdit = ({ visible, onCreate, onCancel, initialValues }) => {
         >
         <Form form={form} layout="vertical">
             <Form.Item name="dealNumber" label="# Сделки" rules={[{ required: true }]}>
-            <Input type='number' disabled={!!initialValues} />
+                <Input 
+                    type='number'
+                    disabled={!!initialValues}
+                    addonBefore={
+                        <Typography.Text>
+                          {form.getFieldValue('type')}  {/* Display the type as static text */}
+                        </Typography.Text>
+                    }   
+                />
             </Form.Item>
             <Form.Item name="date" label="Дата" rules={[{ required: true }]}>
             <DatePicker picker='month' />

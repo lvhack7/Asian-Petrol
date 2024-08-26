@@ -11,6 +11,8 @@ const Supplier = sequelize.define('Supplier', {
   amount: { type: DataTypes.TEXT },
   deliveryBasis: { type: DataTypes.TEXT },
   fixationCondition: { type: DataTypes.TEXT },
+  fillTon: { type: DataTypes.TEXT },
+  fillDate: { type: DataTypes.DATE },
 });
 
 Supplier.belongsTo(Deal, { foreignKey: 'dealId' });

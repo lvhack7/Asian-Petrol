@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom'
 
 const Navbar = () => {
   return (
-    <nav className='flex items-center justify-around space-x-10 p-8'>
+    <nav className='flex items-center space-x-10 p-8'>
+        <Link to={"/reference"} className='text-blue-500'>
+            Справочник
+        </Link>
         <Link to={"/deals"} className='text-blue-500'>
             Сделки
         </Link>
-        <Link to={"/reference"} className='text-blue-500'>
-            Справочник
+        <Link to={"/passport"} className='text-blue-500'>
+            Паспорт
         </Link>
     </nav>
   )

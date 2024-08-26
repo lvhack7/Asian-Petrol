@@ -11,7 +11,9 @@ const Buyer = sequelize.define('Buyer', {
   fixationCondition: { type: DataTypes.TEXT },
   declared: { type: DataTypes.TEXT },
   dischargeVolume: { type: DataTypes.TEXT },
-  dischargeDate: { type: DataTypes.DATE }
+  dischargeDate: { type: DataTypes.DATE },
+  fillTon: { type: DataTypes.TEXT },
+  fillDate: { type: DataTypes.DATE },
 });
 
 Buyer.belongsTo(Deal, { foreignKey: 'dealId' });
