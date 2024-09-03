@@ -9,6 +9,8 @@ import refService from '../services/refService';
 dayjs.extend(utc); // Extend dayjs with UTC plugin
 dayjs.locale('ru');
 
+const isValidDate = (date) => date && dayjs(date).isValid();
+
 const SupplierForm = ({initialValues, onChange}) => {
     const [form] = Form.useForm();
     const [suppliers, setSupplier] = useState([])
@@ -39,10 +41,16 @@ const SupplierForm = ({initialValues, onChange}) => {
     useEffect(() => {
         if (initialValues) {
             console.log("IN2: ", initialValues)
+            const validatedInitialValues = initialValues?.Tonns?.map((item) => ({
+                ...item,
+                date: item?.date ? dayjs.utc(item.date) : null,  // Convert to dayjs if valid, otherwise set to null
+            }));
+
             form.setFieldsValue({
                 ...initialValues,
                 amount: initialValues?.Prices?.length > 0 ? Number(initialValues?.Prices[0]?.price) * Number(initialValues?.volume) : '',
-                fillDate: initialValues?.fillDate ? dayjs.utc(initialValues.fillDate) : null
+                fillDate: initialValues?.fillDate ? dayjs.utc(initialValues.fillDate) : null,
+                Tonns: validatedInitialValues
             })
         } else {
             form.resetFields()
@@ -99,20 +107,20 @@ const SupplierForm = ({initialValues, onChange}) => {
                     <label className='col-span-2 mb-2 font-medium'>Цена</label>
                     <Space key={key} className='grid grid-cols-2 gap-4' align="baseline">
                     <Form.Item
-                    {...restField}
-                    name={[name, 'quotation']}
-                    fieldKey={[fieldKey, 'quotation']}
-                    label="Котировка"
-                    rules={[{ required: true, message: 'Введите котировку' }]}
+                        {...restField}
+                        name={[name, 'quotation']}
+                        fieldKey={[fieldKey, 'quotation']}
+                        label="Котировка"
+                        rules={[{ required: true, message: 'Введите котировку' }]}
                     >
-                    <Input placeholder="Котировка" />
+                        <Input placeholder="Котировка" />
                     </Form.Item>
                     <Form.Item
-                    {...restField}
-                    name={[name, 'discount']}
-                    fieldKey={[fieldKey, 'discount']}
-                    label="Скидка"
-                    rules={[{ required: true, message: 'Введите скидку' }]}
+                        {...restField}
+                        name={[name, 'discount']}
+                        fieldKey={[fieldKey, 'discount']}
+                        label="Скидка"
+                        rules={[{ required: true, message: 'Введите скидку' }]}
                     >
                     <Input placeholder="Скидка" />
                     </Form.Item>
@@ -167,22 +175,53 @@ const SupplierForm = ({initialValues, onChange}) => {
           </>
         )}
       </Form.List>
-      <Form.Item label="Налив">
-        <Row gutter={16}>
-            <Col span={12}>
-                <Form.Item name="fillTon" label="Тоннаж" rules={[{ required: true, message: 'Please enter the tonnage' }]}>
-                <Input />
+      <Form.List name="Tonns">
+        {(fields, { add, remove }) => (
+          <>
+            {fields.map(({ key, name, fieldKey, ...restField }) => (
+                <Form.Item label="Налив">
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item 
+                                {...restField}
+                                name={[name, 'tonn']}
+                                fieldKey={[fieldKey, 'tonn']}
+                                label="Тоннаж" 
+                                rules={[{ required: true, message: 'Please enter the tonnage' }]}>
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item 
+                                {...restField}
+                                name={[name, 'date']}
+                                fieldKey={[fieldKey, 'date']} 
+                                label="Дата" 
+                                rules={[{ required: true, message: 'Please enter the date',  }, 
+                                ]}>
+                                <DatePicker
+                                    className='w-full'
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Button
+                            type="danger"
+                            className='text-red-500'
+                            onClick={() => remove(name)}
+                            >
+                            Удалить
+                        </Button>
+                    </Row>
                 </Form.Item>
-            </Col>
-            <Col span={12}>
-                <Form.Item name="fillDate" label="Дата" rules={[{ required: true, message: 'Please enter the date' }]}>
-                    <DatePicker
-                        className='w-full'
-                    />
-                </Form.Item>
-            </Col>
-        </Row>
-    </Form.Item>
+            ))}
+            <Form.Item>
+              <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                Добавить Налив
+              </Button>
+            </Form.Item>
+          </>
+        )}
+      </Form.List>
     </Form>
     )
 }
@@ -217,10 +256,16 @@ const BuyerForm = ({initialValues, onChange}) => {
     useEffect(() => {
         console.log("INIT: ", initialValues)
         if (initialValues) {
+            const validatedInitialValues = initialValues?.Tonns?.map((item) => ({
+                ...item,
+                date: item?.date ? dayjs.utc(item.date) : null,  // Convert to dayjs if valid, otherwise set to null
+            }));
+
             const updatedValues = {
                 ...initialValues,
                 dischargeDate: initialValues?.dischargeDate ? dayjs.utc(initialValues?.dischargeDate) : null,
-                fillDate: initialValues?.fillDate ? dayjs.utc(initialValues?.fillDate) : null
+                fillDate: initialValues?.fillDate ? dayjs.utc(initialValues?.fillDate) : null,
+                Tonns: validatedInitialValues
             }
             form.setFieldsValue(updatedValues)
         } else {
@@ -270,109 +315,56 @@ const BuyerForm = ({initialValues, onChange}) => {
                 ))}
             </Select>
         </Form.Item>
-        <Form.List name="Prices">
+        <Form.Item name="declared" label="Заявлено" rules={[{ required: true }]}>
+        <Input />
+        </Form.Item>
+        <Form.List name="Tonns">
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name, fieldKey, ...restField }) => (
-                <div className='flex flex-col'>
-                    <label className='col-span-2 mb-2 font-medium'>Цена</label>
-                    <Space key={key} className='grid grid-cols-2 gap-4' align="baseline">
-                        <Form.Item
-                        {...restField}
-                        name={[name, 'quotation']}
-                        fieldKey={[fieldKey, 'quotation']}
-                        label="Котировка"
-                        rules={[{ required: true, message: 'Введите котировку' }]}
-                        >
-                        <Input placeholder="Котировка" />
-                        </Form.Item>
-                        <Form.Item
-                        {...restField}
-                        name={[name, 'discount']}
-                        fieldKey={[fieldKey, 'discount']}
-                        label="Скидка"
-                        rules={[{ required: true, message: 'Введите скидку' }]}
-                        >
-                        <Input placeholder="Скидка" />
-                        </Form.Item>
-                        <Form.Item
-                        {...restField}
-                        name={[name, 'price']}
-                        fieldKey={[fieldKey, 'price']}
-                        label="Цена"
-                        rules={[{ required: true, message: 'Введите цену' }]}
-                        >
-                        <Input placeholder="Цена" />
-                        </Form.Item>
-                        <Form.Item
-                        {...restField}
-                        name={[name, 'currency']}
-                        fieldKey={[fieldKey, 'currency']}
-                        label="Валюта"
-                        rules={[{ required: true, message: 'Выберите валюту' }]}
-                        >
-                        <Select placeholder="Выберите валюту">
-                            {currencies.map(currency => (
-                            <Select.Option key={currency.id} value={currency.name}>
-                                {currency.name}
-                            </Select.Option>
-                            ))}
-                        </Select>
-                        </Form.Item>
-                        <Form.Item
-                        {...restField}
-                        name={[name, 'commentary']}
-                        fieldKey={[fieldKey, 'commentary']}
-                        label="Комментарии"
-                        rules={[{ required: true, message: 'Введите комментарии' }]}
-                        >
-                        <Input placeholder="Комментарии" />
-                        </Form.Item>
+                <Form.Item label="Отгрузка">
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item 
+                                {...restField}
+                                name={[name, 'tonn']}
+                                fieldKey={[fieldKey, 'tonn']}
+                                label="Тоннаж" 
+                                rules={[{ required: true, message: 'Please enter the tonnage' }]}>
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item 
+                                {...restField}
+                                name={[name, 'date']}
+                                fieldKey={[fieldKey, 'date']} 
+                                label="Дата" 
+                                rules={[{ required: true, message: 'Please enter the date',  }, 
+                                ]}>
+                                <DatePicker
+                                    className='w-full'
+                                />
+                            </Form.Item>
+                        </Col>
                         <Button
                             type="danger"
                             className='text-red-500'
                             onClick={() => remove(name)}
-                        >
+                            >
                             Удалить
                         </Button>
-                    </Space>
-                </div>
+                    </Row>
+                </Form.Item>
             ))}
             <Form.Item>
               <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                Добавить цену
+                Добавить Отгрузку
               </Button>
             </Form.Item>
           </>
         )}
       </Form.List>
-        <Form.Item name="declared" label="Заявлено" rules={[{ required: true }]}>
-        <Input />
-        </Form.Item>
-        <Form.Item label="Слив">
-        <Form.Item name="dischargeVolume" label="Объем" rules={[{ required: true }]}>
-            <Input />
-        </Form.Item>
-        <Form.Item name="dischargeDate" label="Дата" rules={[{ required: true }]}>
-            <DatePicker/>
-        </Form.Item>
-        </Form.Item>
-        <Form.Item label="Отгузка">
-            <Row gutter={16}>
-                <Col span={12}>
-                    <Form.Item name="fillTon" label="Тоннаж" rules={[{ required: true, message: 'Please enter the tonnage' }]}>
-                    <Input />
-                    </Form.Item>
-                </Col>
-                <Col span={12}>
-                    <Form.Item name="fillDate" label="Дата" rules={[{ required: true, message: 'Please enter the date' }]}>
-                        <DatePicker
-                            className='w-full'
-                        />
-                    </Form.Item>
-                </Col>
-            </Row>
-        </Form.Item>
     </Form>
     )
 }
@@ -462,7 +454,7 @@ const CompanyForm = ({initialValues, onChange}) => {
     const parseCommaSeparatedString = (str) => {
         console.log("STR: ", str)
         return str ? str?.split(',').map(name => ({ name })) : [];
-      };
+    };
     
     // Convert an array of objects to a comma-separated string for form submissio
     useEffect(() => {
@@ -494,51 +486,68 @@ const CompanyForm = ({initialValues, onChange}) => {
         layout="vertical"
         >
                 <Form.List name="names">
-        {(fields, { add, remove }) => (
-          <>
-            {fields.map(({ key, name, fieldKey, ...restField }) => (
-              <Space key={key} className='flex items-center space-x-4' align="baseline">
-                <Form.Item
-                  {...restField}
-                  name={[name, 'name']}
-                  fieldKey={[fieldKey, 'name']}
-                  label="Группа компании"
-                  rules={[{ required: true, message: 'Пожалуйста, выберите Группу компании!' }]}
-                >
-                  <Select placeholder="Выберите группу компании">
-                    {company.map(factory => (
-                      <Select.Option key={factory.id} value={factory.name}>
-                        {factory.name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-                <Button
-                  type="danger"
-                  className='text-red-500'
-                  onClick={() => remove(name)}
-                >
-                  Удалить
-                </Button>
-              </Space>
-            ))}
-            <Form.Item>
-              <Button
-                type="dashed"
-                onClick={() => add()}
-                icon={<PlusOutlined />}
-              >
-                Добавить группу компании
-              </Button>
-            </Form.Item>
-          </>
-        )}
+                    {(fields, { add, remove }) => (
+                    <>
+                        {fields.map(({ key, name, fieldKey, ...restField }) => (
+                        <Space key={key} className='flex items-center space-x-4' align="baseline">
+                            <Form.Item
+                                {...restField}
+                                name={[name, 'name']}
+                                fieldKey={[fieldKey, 'name']}
+                                label="Группа компании"
+                                rules={[{ required: true, message: 'Пожалуйста, выберите Группу компании!' }]}
+                            >
+                            <Select placeholder="Выберите группу компании">
+                                {company.map(factory => (
+                                <Select.Option key={factory.id} value={factory.name}>
+                                    {factory.name}
+                                </Select.Option>
+                                ))}
+                            </Select>
+                            </Form.Item>
+                            <Button
+                                type="danger"
+                                className='text-red-500'
+                                onClick={() => remove(name)}
+                            >
+                            Удалить
+                            </Button>
+                        </Space>
+                        ))}
+                        <Form.Item>
+                            <Button
+                                type="dashed"
+                                onClick={() => add()}
+                                icon={<PlusOutlined />}
+                            >
+                                Добавить группу компании
+                            </Button>
+                        </Form.Item>
+                    </>
+                    )}
                 </Form.List>
                 <Form.Item name="applicationNumber" label="# Приложения" rules={[{ required: true }]}>
                     <Input />
                 </Form.Item>
-                <Form.Item name="price" label="Цена" rules={[{ required: true }]}>
-                    <Input />
+                <Form.Item label="Цены">
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                name="price" 
+                                label="Цена 1" 
+                                rules={[{ required: true, message: 'Please enter the tonnage' }]}>
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item 
+                                name="price1"
+                                label="Цена 2" 
+                                rules={[{ required: true, message: 'Please enter the tonnage' }]}>
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                    </Row>
                 </Form.Item>
                 <Form.Item name="comment" label="Коммент" rules={[{ required: true }]}>
                     <Input />

@@ -6,6 +6,7 @@ const CompanyGroup = sequelize.define('CompanyGroup', {
     names: {type: DataTypes.TEXT},
     applicationNumber: {type: DataTypes.TEXT},
     price: {type: DataTypes.TEXT},
+    price1: {type: DataTypes.TEXT},
     comment: {type: DataTypes.TEXT},
 });
 

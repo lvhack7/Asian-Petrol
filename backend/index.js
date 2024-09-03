@@ -17,7 +17,7 @@ app.use('/api/reference', refRoutes)
 async function start() {
     try {
         await sequelize.authenticate()
-        await sequelize.sync()
+        await sequelize.sync({ alter: true })
         app.listen(5501, () => {
             console.log('Server is running on port 5501');
         });

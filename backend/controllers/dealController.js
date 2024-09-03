@@ -1,4 +1,4 @@
-const { Deal, Supplier, Buyer, Forwarder, CompanyGroup, Price } = require('../models');
+const { Deal, Supplier, Buyer, Forwarder, CompanyGroup, Price, Tonn } = require('../models');
 
 exports.createDeal = async (req, res) => {
   const data = req.body;
@@ -40,6 +40,18 @@ exports.updateDeal = async (req, res) => {
         });
       }
     }
+
+    await Tonn.destroy({ where: { supplierId: supply.id } });
+
+    if (supplier.Tonns && Array.isArray(supplier.Tonns)) {
+      for (const priceData of supplier.Tonns) {
+        await Tonn.create({
+          supplierId: supply.id,
+          tonn: priceData.tonn,
+          date: priceData.date
+        });
+      }
+    }
   }
 
   if (buyer) {
@@ -54,14 +66,15 @@ exports.updateDeal = async (req, res) => {
     }
 
     // Delete all existing prices for the supplier
-    await Price.destroy({ where: { buyerId: buy.id } });
+    await Tonn.destroy({ where: { buyerId: buy.id } });
     
     // Add new prices from the request
-    if (buyer.Prices && Array.isArray(buyer.Prices)) {
-      for (const priceData of buyer.Prices) {
-        await Price.create({
+    if (buyer.Tonns && Array.isArray(buyer.Tonns)) {
+      for (const priceData of buyer.Tonns) {
+        await Tonn.create({
           buyerId: buy.id,
-          ...priceData
+          tonn: priceData.tonn,
+          date: priceData.date
         });
       }
     }
@@ -103,11 +116,11 @@ exports.getDeals = async (req, res) => {
     include: [
       {
         model: Supplier,
-        include: [Price] // Include prices associated with the supplier
+        include: [Price, Tonn] // Include prices associated with the supplier
       },
       {
         model: Buyer,
-        include: [Price]
+        include: [Tonn]
       },
       {
         model: Forwarder
@@ -117,6 +130,8 @@ exports.getDeals = async (req, res) => {
       }
     ]
   });
+
+  console.log(deals)
   return res.json(deals);
 };
 

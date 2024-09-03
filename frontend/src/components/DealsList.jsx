@@ -80,8 +80,36 @@ const DealsList = () => {
     // },
     { title: 'Завод', dataIndex: 'factory', key: 'factory' },
     { title: 'Вид ГСМ', dataIndex: 'fuelType', key: 'fuelType' },
-    { title: 'Тоннаж Налива', dataIndex: ['Supplier', 'fillTon'], key: 'fillTonSupp' },
-    { title: 'Тоннаж Отгрузки', dataIndex: ['Buyer', 'fillTon'], key: 'fillTonBuyer' },
+    { title: 'Тоннаж Налива', key: 'fillTonns', 
+      render: (record) => (
+        <>
+            {record.Supplier && record.Supplier.Tonns && record.Supplier.Tonns.length > 0 ? (
+              <div className='flex flex-wrap gap-2'>
+                {record.Supplier.Tonns.map((tonn, index) => (
+                  <p key={index}>{tonn.tonn}</p>
+                ))}
+              </div>
+            ) : (
+              ''
+            )}
+          </>
+      )
+    },
+    { title: 'Тоннаж Отгрузки', key: 'fillTonns1',
+      render: (record) => (
+        <>
+            {record.Buyer && record.Buyer.Tonns && record.Buyer.Tonns.length > 0 ? (
+              <div className='flex flex-wrap gap-2'>
+                {record.Buyer.Tonns.map((tonn, index) => (
+                  <p key={index}>{tonn.tonn}</p>
+                ))}
+              </div>
+            ) : (
+              ''
+            )}
+          </>
+      )
+     },
     {
       title: 'Статус',
       key: 'status',

@@ -264,21 +264,10 @@ const columns = [
         ),
       },
       {
-        title: 'Цены покупателя', // Buyer Prices
-        key: 'buyerPrices',
-        render: (record) => (
-          <>
-            {record.Buyer && record.Buyer.Prices && record.Buyer.Prices.length > 0 ? (
-              record.Buyer.Prices.map((price, index) => (
-                <div key={index}>
-                  {price.currency}: {price.price} ({price.discount})
-                </div>
-              ))
-            ) : (
-              ''
-            )}
-          </>
-        ),
+        title: 'Группа компании', // Buyer Prices
+        key: 'companyGroups',
+        dataIndex: ['CompanyGroup', 'names'],
+        render: (text) => text || '',
       }
 ]
 
