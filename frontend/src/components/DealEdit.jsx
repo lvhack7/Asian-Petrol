@@ -449,7 +449,10 @@ const ForwarderForm = ({initialValues, onChange}) => {
 
     useEffect(() => {
         if (initialValues) {
-            form.setFieldsValue(initialValues)
+            form.setFieldsValue({
+                ...initialValues,
+                fillDate: initialValues?.fillDate ? dayjs.utc(initialValues.fillDate) : null,
+            })
         } else {
             form.resetFields()
         }
@@ -515,7 +518,9 @@ const ForwarderForm = ({initialValues, onChange}) => {
                         <Input />
                     </Form.Item>
                     <Form.Item name="fillDate" label="Дата" rules={[{ required: true }]}>
-                        <Input type='date' />
+                        <DatePicker
+                            className='w-full'
+                        />
                     </Form.Item>
                 </Form.Item>
         </Form>
