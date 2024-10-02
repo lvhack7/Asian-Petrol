@@ -9,8 +9,6 @@ import refService from '../services/refService';
 dayjs.extend(utc); // Extend dayjs with UTC plugin
 dayjs.locale('ru');
 
-const isValidDate = (date) => date && dayjs(date).isValid();
-
 const SupplierForm = ({initialValues, onChange}) => {
     const [form] = Form.useForm();
     const [suppliers, setSupplier] = useState([])
@@ -263,6 +261,7 @@ const BuyerForm = ({initialValues, onChange}) => {
 
             const updatedValues = {
                 ...initialValues,
+                amount: initialValues?.Prices?.length > 0 ? Number(initialValues?.Prices[0]?.price) * Number(initialValues?.volume) : '',
                 dischargeDate: initialValues?.dischargeDate ? dayjs.utc(initialValues?.dischargeDate) : null,
                 fillDate: initialValues?.fillDate ? dayjs.utc(initialValues?.fillDate) : null,
                 Tonns: validatedInitialValues
@@ -318,6 +317,82 @@ const BuyerForm = ({initialValues, onChange}) => {
         <Form.Item name="declared" label="Заявлено" rules={[{ required: true }]}>
         <Input />
         </Form.Item>
+        <Form.List name="Prices">
+        {(fields, { add, remove }) => (
+          <>
+            {fields.map(({ key, name, fieldKey, ...restField }) => (
+                <div className='flex flex-col'>
+                    <label className='col-span-2 mb-2 font-medium'>Цена</label>
+                    <Space key={key} className='grid grid-cols-2 gap-4' align="baseline">
+                    <Form.Item
+                        {...restField}
+                        name={[name, 'quotation']}
+                        fieldKey={[fieldKey, 'quotation']}
+                        label="Котировка"
+                        rules={[{ required: true, message: 'Введите котировку' }]}
+                    >
+                        <Input placeholder="Котировка" />
+                    </Form.Item>
+                    <Form.Item
+                        {...restField}
+                        name={[name, 'discount']}
+                        fieldKey={[fieldKey, 'discount']}
+                        label="Скидка"
+                        rules={[{ required: true, message: 'Введите скидку' }]}
+                    >
+                    <Input placeholder="Скидка" />
+                    </Form.Item>
+                    <Form.Item
+                    {...restField}
+                    name={[name, 'price']}
+                    fieldKey={[fieldKey, 'price']}
+                    label="Цена"
+                    rules={[{ required: true, message: 'Введите цену' }]}
+                    >
+                    <Input placeholder="Цена" />
+                    </Form.Item>
+                    <Form.Item
+                    {...restField}
+                    name={[name, 'currency']}
+                    fieldKey={[fieldKey, 'currency']}
+                    label="Валюта"
+                    rules={[{ required: true, message: 'Выберите валюту' }]}
+                    >
+                    <Select placeholder="Выберите валюту">
+                        {currencies.map(currency => (
+                        <Select.Option key={currency.id} value={currency.name}>
+                            {currency.name}
+                        </Select.Option>
+                        ))}
+                    </Select>
+                    </Form.Item>
+                    <Form.Item
+                    {...restField}
+                    name={[name, 'commentary']}
+                    fieldKey={[fieldKey, 'commentary']}
+                    label="Комментарии"
+                    rules={[{ required: true, message: 'Введите комментарии' }]}
+                    >
+                    <Input placeholder="Комментарии" />
+                    </Form.Item>
+                    <Button
+                  type="danger"
+                  className='text-red-500'
+                  onClick={() => remove(name)}
+                >
+                  Удалить
+                </Button>
+                </Space>
+                </div>
+            ))}
+            <Form.Item>
+              <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                Добавить цену
+              </Button>
+            </Form.Item>
+          </>
+        )}
+      </Form.List>
         <Form.List name="Tonns">
         {(fields, { add, remove }) => (
           <>
@@ -450,13 +525,12 @@ const ForwarderForm = ({initialValues, onChange}) => {
 const CompanyForm = ({initialValues, onChange}) => {
     const [form] = Form.useForm()
     const [company, setCompany] = useState([])
+    const [currencies, setCurr] = useState([])
 
-    const parseCommaSeparatedString = (str) => {
-        console.log("STR: ", str)
-        return str ? str?.split(',').map(name => ({ name })) : [];
-    };
-    
-    // Convert an array of objects to a comma-separated string for form submissio
+    useEffect(() => {
+        fetchSuppliers()
+    }, [])
+
     useEffect(() => {
         if (initialValues) {
             form.setFieldsValue({
@@ -467,7 +541,25 @@ const CompanyForm = ({initialValues, onChange}) => {
             form.resetFields()
         }
         fetchCompany()
-    }, [])
+    }, [initialValues])
+
+    const fetchSuppliers = async () => {
+        try {
+            const fetchCurr = await refService.getRef("currency")
+
+            setCurr(fetchCurr.data)
+        } catch(e) {
+            console.log(e)
+        }
+    }
+
+    const parseCommaSeparatedString = (str) => {
+        // Ensure str is a string before using split
+        console.log(str)
+        return typeof str === 'string' ? str.split(',').map(name => ({ name })) : str.map(item => ({name: item?.name || ''}));
+    };
+    
+    // Convert an array of objects to a comma-separated string for form submissio
 
     const fetchCompany = async () => {
         try {
@@ -529,29 +621,85 @@ const CompanyForm = ({initialValues, onChange}) => {
                 <Form.Item name="applicationNumber" label="# Приложения" rules={[{ required: true }]}>
                     <Input />
                 </Form.Item>
-                <Form.Item label="Цены">
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="price" 
-                                label="Цена 1" 
-                                rules={[{ required: true, message: 'Please enter the tonnage' }]}>
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item 
-                                name="price1"
-                                label="Цена 2" 
-                                rules={[{ required: true, message: 'Please enter the tonnage' }]}>
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Form.Item>
                 <Form.Item name="comment" label="Коммент" rules={[{ required: true }]}>
                     <Input />
                 </Form.Item>
+                <Form.List name="Prices">
+                    {(fields, { add, remove }) => (
+                    <>
+                        {fields.map(({ key, name, fieldKey, ...restField }) => (
+                            <div className='flex flex-col'>
+                                <label className='col-span-2 mb-2 font-medium'>Цена</label>
+                                <Space key={key} className='grid grid-cols-2 gap-4' align="baseline">
+                                <Form.Item
+                                    {...restField}
+                                    name={[name, 'quotation']}
+                                    fieldKey={[fieldKey, 'quotation']}
+                                    label="Котировка"
+                                    rules={[{ required: true, message: 'Введите котировку' }]}
+                                >
+                                    <Input placeholder="Котировка" />
+                                </Form.Item>
+                                <Form.Item
+                                    {...restField}
+                                    name={[name, 'discount']}
+                                    fieldKey={[fieldKey, 'discount']}
+                                    label="Скидка"
+                                    rules={[{ required: true, message: 'Введите скидку' }]}
+                                >
+                                <Input placeholder="Скидка" />
+                                </Form.Item>
+                                <Form.Item
+                                {...restField}
+                                name={[name, 'price']}
+                                fieldKey={[fieldKey, 'price']}
+                                label="Цена"
+                                rules={[{ required: true, message: 'Введите цену' }]}
+                                >
+                                <Input placeholder="Цена" />
+                                </Form.Item>
+                                <Form.Item
+                                {...restField}
+                                name={[name, 'currency']}
+                                fieldKey={[fieldKey, 'currency']}
+                                label="Валюта"
+                                rules={[{ required: true, message: 'Выберите валюту' }]}
+                                >
+                                <Select placeholder="Выберите валюту">
+                                    {currencies.map(currency => (
+                                    <Select.Option key={currency.id} value={currency.name}>
+                                        {currency.name}
+                                    </Select.Option>
+                                    ))}
+                                </Select>
+                                </Form.Item>
+                                <Form.Item
+                                {...restField}
+                                name={[name, 'commentary']}
+                                fieldKey={[fieldKey, 'commentary']}
+                                label="Комментарии"
+                                rules={[{ required: true, message: 'Введите комментарии' }]}
+                                >
+                                <Input placeholder="Комментарии" />
+                                </Form.Item>
+                                <Button
+                            type="danger"
+                            className='text-red-500'
+                            onClick={() => remove(name)}
+                            >
+                            Удалить
+                            </Button>
+                            </Space>
+                            </div>
+                        ))}
+                        <Form.Item>
+                        <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                            Добавить цену
+                        </Button>
+                        </Form.Item>
+                    </>
+                    )}
+                </Form.List>
         </Form>
     )
 }
@@ -608,6 +756,11 @@ const DealEdit = ({ visible, onCreate, onCancel, initialValues }) => {
         okText='Обновить'
         cancelText="Отменить"
         onCancel={() => {
+            setSupplier(null)
+            setBuyer(null)
+            setForwarder(null)
+            setCompany(null)
+
             onCancel();
         }}
         onOk={() => {

@@ -5,6 +5,31 @@ import { Table, Button, notification, Typography } from 'antd';
 const {Text} = Typography
 
 
+const fuelColorMapping = {
+  "ВГО": "#a2b5dc",
+  "ВГО 2%": "#dbe0ef",
+  "Мазут": "#b5d8a4",
+  "ДТ": "#ddd5c3",
+  "Нефть": "#d3956e",
+  "АИ-92 К4": "#f0b04c",
+  "АИ-92 К5": "#f8e08d",
+  "Нефрас": "#5473a6",
+  "Газ": "#9e9a94",
+  "Печное топливо": "#858793",
+  "Авиакеросин": "#a69784",
+  "ДТЗ-К4/К5": "#d2cdc0",
+  "АИ-92 К4/К5": "#f1c653",
+  "Аи-95-К4": "#f9e4a3",
+  "Аи-95": "#f9e4a3",
+  "АИ-80": "#b5d8a4",
+  "Кокс": "#af853c",
+  "Параксилол": "#6fc5e7",
+  "Судовое топливо": "#bde4df",
+  "Нафта": "#aaa8a4",
+  "ДТ-А-К5": "#f9e465",
+  "АИ-98": "#a6e5b4"
+};
+
 const columns = [
     {
         title: 'Тип', // Type
@@ -31,13 +56,17 @@ const columns = [
       render: (text) => text || '',
     },
     {
-      title: 'Тип топлива', // Fuel Type
+      title: 'Вид ГСМ', // Factory
       dataIndex: 'fuelType',
       key: 'fuelType',
-      render: (text) => text || '',
+      render: (text) => (
+        <div style={{ backgroundColor: fuelColorMapping[text], padding: '10px', borderRadius: '4px' }}>
+            {text}
+        </div>
+      ),
     },
     {
-      title: 'Содержание серы', // Sulfur Content
+      title: 'Содержание серы, %', // Sulfur Content
       dataIndex: 'sulfur',
       key: 'sulfur',
       render: (text) => text || '',
@@ -61,7 +90,7 @@ const columns = [
       render: (text) => text || '',
     },
     {
-      title: 'Сумма поставщика', // Supplier Amount
+      title: 'Сумма по приложению', // Supplier Amount
       dataIndex: ['Supplier', 'amount'],
       key: 'supplierAmount',
       render: (text) => text || '',
@@ -91,6 +120,30 @@ const columns = [
       render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
     },
     {
+      title: 'Цены поставщика', // Supplier Prices
+      key: 'supplierPrices',
+      render: (record) => (
+        <>
+          {record.Supplier && record.Supplier.Prices && record.Supplier.Prices.length > 0 ? (
+            record.Supplier.Prices.map((price, index) => (
+              <div key={index}>
+                {index+1}: {price.price} {price.currency}
+              </div>
+            ))
+          ) : (
+            ''
+          )}
+        </>
+      ),
+    },
+    {
+      title: 'Сумма  отгрузки, (факт)', // Supplier Amount
+      key: 'supplierAmount1',
+      render: (record) => {
+        return Number(record?.Supplier?.Prices[0]?.price) * Number(record?.Supplier?.volume) || ''
+      } 
+    },
+    {
       title: 'Покупатель', // Buyer Name
       dataIndex: ['Buyer', 'name'],
       key: 'buyerName',
@@ -109,7 +162,7 @@ const columns = [
       render: (text) => text || '',
     },
     {
-      title: 'Сумма покупателя', // Buyer Amount
+      title: 'Законтракт. на сумму', // Buyer Amount
       dataIndex: ['Buyer', 'amount'],
       key: 'buyerAmount',
       render: (text) => text || '',
@@ -143,6 +196,30 @@ const columns = [
       dataIndex: ['Buyer', 'dischargeDate'],
       key: 'dischargeDate',
       render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
+    },
+    {
+      title: 'Цены покупателя', // Supplier Prices
+      key: 'buyerPrices',
+      render: (record) => (
+        <>
+          {record.Buyer && record.Buyer.Prices && record.Buyer.Prices.length > 0 ? (
+            record.Buyer.Prices.map((price, index) => (
+              <div key={index}>
+                {index+1}: {price.price} {price.currency}
+              </div>
+            ))
+          ) : (
+            ''
+          )}
+        </>
+      ),
+    },
+    {
+      title: 'Отгружено на сумму', // Supplier Amount
+      key: 'supplierAmount2',
+      render: (record) => {
+        return Number(record?.Buyer?.Prices[0]?.price) * Number(record?.Buyer?.volume) || ''
+      } 
     },
     {
       title: 'Экспедитор', // Forwarder Name
@@ -246,15 +323,21 @@ const columns = [
         key: 'forwarderFillDate',
         render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
     },
-    {
-        title: 'Цены поставщика', // Supplier Prices
-        key: 'supplierPrices',
+      {
+        title: 'Группа компании', // Buyer Prices
+        key: 'companyGroups',
+        dataIndex: ['CompanyGroup', 'names'],
+        render: (text) => text || '',
+      },
+      {
+        title: 'Цены Группа компаний', // Supplier Prices
+        key: 'companyPrices',
         render: (record) => (
           <>
-            {record.Supplier && record.Supplier.Prices && record.Supplier.Prices.length > 0 ? (
-              record.Supplier.Prices.map((price, index) => (
+            {record.CompanyGroup && record.CompanyGroup.Prices && record.CompanyGroup.Prices.length > 0 ? (
+              record.CompanyGroup.Prices.map((price, index) => (
                 <div key={index}>
-                  {price.currency}: {price.price} ({price.discount})
+                  {index+1}: {price.price} {price.currency}
                 </div>
               ))
             ) : (
@@ -263,12 +346,6 @@ const columns = [
           </>
         ),
       },
-      {
-        title: 'Группа компании', // Buyer Prices
-        key: 'companyGroups',
-        dataIndex: ['CompanyGroup', 'names'],
-        render: (text) => text || '',
-      }
 ]
 
 const PassportPage = () => {

@@ -36,6 +36,7 @@ const DealsList = () => {
 
   const onCreate = async (values) => {
     try {
+      console.log(values)
       await dealService.createDeal(values);
       await fetchDeals();
       notification.success({ message: 'Сделка успешно сохранена!' });
@@ -71,6 +72,12 @@ const DealsList = () => {
   };
 
   const columns = [
+    {
+      title: 'Тип', // Type
+      dataIndex: 'type',
+      key: 'type',
+      render: (text) => text || '',
+    },
     { title: '# Сделки', dataIndex: 'dealNumber', key: 'dealNumber',
       sorter: (a, b) => Number(a.dealNumber) - Number(b.dealNumber)
     },
@@ -158,7 +165,10 @@ const DealsList = () => {
       <DealEdit
         visible={editModal}
         onCreate={onUpdate}
-        onCancel={() => setEditModal(false)}
+        onCancel={() => {
+          setEditRecord(null)
+          setEditModal(false)
+        }}
         initialValues={editRecord}
       />
     </div>

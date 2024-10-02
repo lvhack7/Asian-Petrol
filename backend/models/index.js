@@ -21,7 +21,13 @@ Price.belongsTo(Supplier, {foreignKey: 'supplierId'})
 Supplier.hasMany(Tonn, {foreignKey: 'supplierId'})
 Tonn.belongsTo(Supplier, {foreignKey: 'supplierId'})
 
+Buyer.hasMany(Price, {foreignKey: 'buyerId'})
+Price.belongsTo(Buyer, {foreignKey: 'buyerId'})
+
 Buyer.hasMany(Tonn, {foreignKey: 'buyerId'})
 Tonn.belongsTo(Buyer, {foreignKey: 'buyerId'})
+
+CompanyGroup.hasMany(Price, {foreignKey: 'companyId'})
+Price.belongsTo(CompanyGroup, {foreignKey: 'companyId'})
 
 module.exports = { sequelize, User, Deal, Supplier, Buyer, Forwarder, CompanyGroup, Reference, Price, Tonn };

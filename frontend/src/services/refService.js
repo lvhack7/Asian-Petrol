@@ -1,17 +1,18 @@
 import axios from 'axios';
+import { API_URL } from '../utils';
 
-const API_URL = 'https://ap-api.finpeak.kz/api/reference';
+const apiUrl = `${API_URL}/api/reference`;
 
 const createRef = (ref) => {
-  return axios.post(API_URL, ref, { headers: { Authorization: localStorage.getItem('token') } });
+  return axios.post(apiUrl, ref, { headers: { Authorization: localStorage.getItem('token') } });
 };
 
 const deleteRef = (id) => {
-  return axios.delete(`${API_URL}/${id}`, { headers: { Authorization: localStorage.getItem('token') } });
+  return axios.delete(`${apiUrl}/${id}`, { headers: { Authorization: localStorage.getItem('token') } });
 };
 
 const getRef = (name) => {
-    return axios.get(API_URL, { params: {name}, headers: { Authorization: localStorage.getItem('token') } });
+    return axios.get(apiUrl, { params: {name}, headers: { Authorization: localStorage.getItem('token') } });
 }; 
 
 export default { createRef, deleteRef, getRef };

@@ -28,11 +28,11 @@ const RefForm = ({ field, title }) => {
     const onSubmit = async (data) => {
       try {
         await refService.createRef({field, name: data.name});  // Using the Axios service
-        message.success('Item added successfully');
+        message.success('Успешно добавлено!');
         form.resetFields()
         fetchItems();
       } catch (error) {
-        message.error('Failed to add item');
+        message.error('Не получилось добавить!');
       }
     };
   
