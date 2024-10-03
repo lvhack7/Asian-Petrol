@@ -5,6 +5,20 @@ import { Table, Button, notification, Typography } from 'antd';
 const {Text} = Typography
 
 
+function formatNumber(number) {
+  if (!number) return '';
+
+  // Check if the input is a string and can be parsed into a valid number
+  const num = typeof number === 'string' ? parseFloat(number.replace(',', '.').replace(/\s/g, '')) : number;
+
+  // If not a valid number, return an empty string
+  if (isNaN(num)) return number;
+
+  return num.toLocaleString('ru-RU', {
+    minimumFractionDigits: 0
+  }).replace(/\s/g, ' ').replace(',', '.'); // Ensures space separator for thousands
+}
+
 const fuelColorMapping = {
   "ВГО": "#a2b5dc",
   "ВГО 2%": "#dbe0ef",
@@ -59,11 +73,15 @@ const columns = [
       title: 'Вид ГСМ', // Factory
       dataIndex: 'fuelType',
       key: 'fuelType',
-      render: (text) => (
-        <div style={{ backgroundColor: fuelColorMapping[text], padding: '10px', borderRadius: '4px' }}>
-            {text}
-        </div>
-      ),
+      render: (text) => ({
+        props: {
+          style: {
+            backgroundColor: fuelColorMapping[text], // Background color for the entire cell
+            padding: '10px',
+          },
+        },
+        children: <div>{text}</div>,
+      }),
     },
     {
       title: 'Содержание серы, %', // Sulfur Content
@@ -78,13 +96,13 @@ const columns = [
       render: (text) => text || '',
     },
     {
-      title: 'Номер контракта поставщика', // Supplier Contract Number
+      title: '№ договор / приложение', // Supplier Contract Number
       dataIndex: ['Supplier', 'contractNumber'],
       key: 'supplierContractNumber',
       render: (text) => text || '',
     },
     {
-      title: 'Объем поставщика', // Supplier Volume
+      title: 'Законтрактовано по приложению', // Supplier Volume
       dataIndex: ['Supplier', 'volume'],
       key: 'supplierVolume',
       render: (text) => text || '',
@@ -93,7 +111,7 @@ const columns = [
       title: 'Сумма по приложению', // Supplier Amount
       dataIndex: ['Supplier', 'amount'],
       key: 'supplierAmount',
-      render: (text) => text || '',
+      render: (text) => formatNumber(text),
     },
     {
       title: 'Условия поставки', // Delivery Basis
@@ -108,26 +126,25 @@ const columns = [
       render: (text) => text || '',
     },
     {
-      title: 'Тоннаж', // Fill Ton
-      dataIndex: ['Supplier', 'fillTon'],
-      key: 'fillTon',
-      render: (text) => text || '',
-    },
-    {
       title: 'Дата загрузки', // Fill Date
       dataIndex: ['Supplier', 'fillDate'],
       key: 'fillDate',
       render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
     },
     {
-      title: 'Цены поставщика', // Supplier Prices
-      key: 'supplierPrices',
+      title: 'Налив поставщик',
+      key: 'suppTonns',
       render: (record) => (
         <>
-          {record.Supplier && record.Supplier.Prices && record.Supplier.Prices.length > 0 ? (
-            record.Supplier.Prices.map((price, index) => (
-              <div key={index}>
-                {index+1}: {price.price} {price.currency}
+          {record.Supplier && record.Supplier.Tonns && record.Supplier.Tonns.length > 0 ? (
+            record.Supplier.Tonns.map((tonn, index) => (
+              <div key={index} className="flex flex-col mt-3">
+                <div>
+                  <strong>Тонн:</strong> {formatNumber(tonn.tonn)}
+                </div>
+                <div>
+                  <strong>Дата:</strong> {new Date(tonn.date).toLocaleDateString()}
+                </div>
               </div>
             ))
           ) : (
@@ -137,10 +154,35 @@ const columns = [
       ),
     },
     {
+      title: 'Цены поставщика', // Supplier Prices
+      key: 'supplierPrices',
+      render: (record) => (
+        <>
+          {record.Supplier && record.Supplier.Prices && record.Supplier.Prices.length > 0 ? (
+            record.Supplier.Prices.map((price, index) => (
+              <div key={index} className="flex flex-col mt-3">
+              <div>
+                <strong>Цена:</strong> {formatNumber(price.price)} {price.currency}
+              </div>
+              <div>
+                <strong>Скидка:</strong> {price.discount}
+              </div>
+              <div>
+                <strong>Котировка:</strong> {price.quotation}
+              </div>
+            </div>
+            ))
+          ) : (
+            ''
+          )}
+        </>
+      )
+    },
+    {
       title: 'Сумма  отгрузки, (факт)', // Supplier Amount
       key: 'supplierAmount1',
       render: (record) => {
-        return Number(record?.Supplier?.Prices[0]?.price) * Number(record?.Supplier?.volume) || ''
+        return formatNumber(Number(record?.Supplier?.Prices[0]?.price) * Number(record?.Supplier?.volume))
       } 
     },
     {
@@ -159,13 +201,13 @@ const columns = [
       title: 'Объем покупателя', // Buyer Volume
       dataIndex: ['Buyer', 'volume'],
       key: 'buyerVolume',
-      render: (text) => text || '',
+      render: (text) => formatNumber(text),
     },
     {
       title: 'Законтракт. на сумму', // Buyer Amount
       dataIndex: ['Buyer', 'amount'],
       key: 'buyerAmount',
-      render: (text) => text || '',
+      render: (text) => formatNumber(text),
     },
     {
       title: 'Условия поставки', // Delivery Basis (Buyer)
@@ -183,13 +225,13 @@ const columns = [
       title: 'Заявленный объем', // Declared Volume
       dataIndex: ['Buyer', 'declared'],
       key: 'declaredVolume',
-      render: (text) => text || '',
+      render: (text) => formatNumber(text),
     },
     {
       title: 'Объем разгрузки', // Discharge Volume
       dataIndex: ['Buyer', 'dischargeVolume'],
       key: 'dischargeVolume',
-      render: (text) => text || '',
+      render: (text) => formatNumber(text),
     },
     {
       title: 'Дата разгрузки', // Discharge Date
@@ -198,15 +240,45 @@ const columns = [
       render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
     },
     {
+      title: 'Отгрузка покупателя',
+      key: 'buyTonns',
+      render: (record) => (
+        <>
+          {record.Buyer && record.Buyer.Tonns && record.Buyer.Tonns.length > 0 ? (
+            record.Buyer.Tonns.map((tonn, index) => (
+              <div key={index} className="flex flex-col mt-3">
+                <div>
+                  <strong>Тонн:</strong> {formatNumber(tonn.tonn)}
+                </div>
+                <div>
+                  <strong>Дата:</strong> {new Date(tonn.date).toLocaleDateString()}
+                </div>
+              </div>
+            ))
+          ) : (
+            ''
+          )}
+        </>
+      ),
+    },
+    {
       title: 'Цены покупателя', // Supplier Prices
       key: 'buyerPrices',
       render: (record) => (
         <>
           {record.Buyer && record.Buyer.Prices && record.Buyer.Prices.length > 0 ? (
             record.Buyer.Prices.map((price, index) => (
-              <div key={index}>
-                {index+1}: {price.price} {price.currency}
+              <div key={index} className="flex flex-col mt-3">
+              <div>
+                <strong>Цена:</strong> {formatNumber(price.price)} {price.currency}
               </div>
+              <div>
+                <strong>Скидка:</strong> {price.discount}
+              </div>
+              <div>
+                <strong>Котировка:</strong> {price.quotation}
+              </div>
+            </div>
             ))
           ) : (
             ''
@@ -218,7 +290,7 @@ const columns = [
       title: 'Отгружено на сумму', // Supplier Amount
       key: 'supplierAmount2',
       render: (record) => {
-        return Number(record?.Buyer?.Prices[0]?.price) * Number(record?.Buyer?.volume) || ''
+        return formatNumber(Number(record?.Buyer?.Prices[0]?.price) * Number(record?.Buyer?.volume))
       } 
     },
     {
@@ -228,67 +300,67 @@ const columns = [
       render: (text) => text || '',
     },
     {
-      title: 'Группа компаний', // Group Company
+      title: 'Компания группы', // Group Company
       dataIndex: ['Forwarder', 'groupCompany'],
       key: 'groupCompany',
       render: (text) => text || '',
     },
     {
-      title: 'Планируемый ж/д тариф', // Planned Railway Tariff
+      title: 'ж/д тариф план', // Planned Railway Tariff
       dataIndex: ['Forwarder', 'plannedRailwayTariff'],
       key: 'plannedRailwayTariff',
       render: (text) => text || '',
     },
     {
-      title: 'Сумма груза MT', // Cargo Amount MT
+      title: 'Кол-во груза предварит. MT', // Cargo Amount MT
       dataIndex: ['Forwarder', 'cargoAmountMT'],
       key: 'cargoAmountMT',
       render: (text) => text || '',
     },
     {
-      title: 'Начисленная сумма', // Accrued Amount
+      title: 'Сумма начисленная предварит.', // Accrued Amount
       dataIndex: ['Forwarder', 'accruedAmount'],
       key: 'accruedAmount',
-      render: (text) => text || '',
+      render: (text) => formatNumber(text),
     },
     {
-      title: 'Фактический ж/д тариф', // Actual Railway Tariff
+      title: 'ж/д тариф факт', // Actual Railway Tariff
       dataIndex: ['Forwarder', 'actualRailwayTariff'],
       key: 'actualRailwayTariff',
       render: (text) => text || '',
     },
     {
-      title: 'Фактический объем отгрузки MT', // Actual Shipped Volume MT
+      title: 'Фактически отгруженный объем, МТ', // Actual Shipped Volume MT
       dataIndex: ['Forwarder', 'actualShippedVolumeMT'],
       key: 'actualShippedVolumeMT',
-      render: (text) => text || '',
+      render: (text) => formatNumber(text),
     },
     {
-      title: 'Фактический объем счета MT', // Actual Volume Invoice MT
+      title: 'Факт. объем по счету-фактуре, МТ', // Actual Volume Invoice MT
       dataIndex: ['Forwarder', 'actualVolumeInvoiceMT'],
       key: 'actualVolumeInvoiceMT',
-      render: (text) => text || '',
+      render: (text) => formatNumber(text),
     },
     {
-      title: 'Счет за фактический объем', // Invoice Amount Actual Volume
+      title: 'Сумма по счету-фактуре на фактич. объем', // Invoice Amount Actual Volume
       dataIndex: ['Forwarder', 'invoiceAmountActualVolume'],
       key: 'invoiceAmountActualVolume',
-      render: (text) => text || '',
+      render: (text) => formatNumber(text),
     },
     {
-      title: 'Гарантия', // Security
+      title: 'Охрана', // Security
       dataIndex: ['Forwarder', 'security'],
       key: 'security',
       render: (text) => text || '',
     },
     {
-      title: 'Превышение (высокое)', // Excess High
+      title: 'Сверхнормативы (высокое)', // Excess High
       dataIndex: ['Forwarder', 'excessHigh'],
       key: 'excessHigh',
       render: (text) => text || '',
     },
     {
-      title: 'Превышение (переведенное)', // Excess Transferred
+      title: 'Сверхнормативы (переведенное)', // Excess Transferred
       dataIndex: ['Forwarder', 'excessTransferred'],
       key: 'excessTransferred',
       render: (text) => text || '',
@@ -315,7 +387,7 @@ const columns = [
         title: 'Заполненный объем', // Volume Filled
         dataIndex: ['Forwarder', 'volumeFilled'],
         key: 'volumeFilled',
-        render: (text) => text || '',
+        render: (text) => formatNumber(text),
     },
     {
         title: 'Дата загрузки', // Fill Date
@@ -336,9 +408,17 @@ const columns = [
           <>
             {record.CompanyGroup && record.CompanyGroup.Prices && record.CompanyGroup.Prices.length > 0 ? (
               record.CompanyGroup.Prices.map((price, index) => (
-                <div key={index}>
-                  {index+1}: {price.price} {price.currency}
-                </div>
+                <div key={index} className="flex flex-col mt-3">
+              <div>
+                <strong>Цена:</strong> {formatNumber(price.price)} {price.currency}
+              </div>
+              <div>
+                <strong>Скидка:</strong> {price.discount}
+              </div>
+              <div>
+                <strong>Котировка:</strong> {price.quotation}
+              </div>
+            </div>
               ))
             ) : (
               ''
@@ -349,33 +429,55 @@ const columns = [
 ]
 
 const PassportPage = () => {
+  const [deals, setDeals] = useState([])
+  const [loading, setLoading] = useState(false);
 
-    const [deals, setDeals] = useState([])
+  useEffect(() => {
+      fetchDeals()
+  }, [])
 
-    useEffect(() => {
-        fetchDeals()
-    }, [])
+  const fetchDeals = async () => {
+      setLoading(true)
+      try {
+        const { data } = await dealService.getDeals();
+        console.log("DATA: ", data)
+        setDeals(data);
+      } catch (error) {
+        localStorage.removeItem('token');
+        notification.error({ message: 'Не удалось получить сделки!' });
+      } finally {
+        setLoading(false);
+      }
+  };
 
-    const fetchDeals = async () => {
-        try {
-          const { data } = await dealService.getDeals();
-          console.log("DATA: ", data)
-          setDeals(data);
-        } catch (error) {
-          localStorage.removeItem('token');
-          notification.error({ message: 'Не удалось получить сделки!' });
-        }
-    };
+  const KZDeals = deals.filter((deal) => deal.type === 'KZ');
+  const KGDeals = deals.filter((deal) => deal.type === 'KG');
 
+  return (
+    <>
+      <h2 className='font-semibold text-2xl mb-4'>KZ Паспорт</h2>
+      <Table
+        className='overflow-x-auto'
+        columns={columns}
+        dataSource={KZDeals}
+        rowKey="dealNumber"
+        bordered
+        loading={loading}
+        pagination={false} // Add pagination if needed
+      />
 
-    return (
-        <Table
-            columns={columns}
-            dataSource={deals}
-            rowKey="dealNumber"
-            bordered
-        />
-    )
+      <h2 className='font-semibold text-2xl mb-4 mt-16'>KG Паспорт</h2>
+      <Table
+        className='overflow-x-auto'
+        columns={columns}
+        dataSource={KGDeals}
+        rowKey="dealNumber"
+        bordered
+        loading={loading}
+        pagination={false} // Add pagination if needed
+      />
+    </>
+  );
 }
 
 export default PassportPage

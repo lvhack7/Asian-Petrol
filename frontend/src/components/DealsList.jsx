@@ -29,6 +29,7 @@ const DealsList = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editModal, setEditModal] = useState(false)
   const [editRecord, setEditRecord] = useState(null);
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     fetchDeals();
@@ -61,6 +62,7 @@ const DealsList = () => {
   }
 
   const fetchDeals = async () => {
+    setLoading(true)
     try {
       const { data } = await dealService.getDeals();
       console.log("DATA: ", data)
@@ -68,6 +70,8 @@ const DealsList = () => {
     } catch (error) {
       localStorage.removeItem('token');
       notification.error({ message: 'Не удалось получить сделки!' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,34 +92,44 @@ const DealsList = () => {
     { title: 'Завод', dataIndex: 'factory', key: 'factory' },
     { title: 'Вид ГСМ', dataIndex: 'fuelType', key: 'fuelType' },
     { title: 'Тоннаж Налива', key: 'fillTonns', 
-      render: (record) => (
-        <>
-            {record.Supplier && record.Supplier.Tonns && record.Supplier.Tonns.length > 0 ? (
-              <div className='flex flex-wrap gap-2'>
-                {record.Supplier.Tonns.map((tonn, index) => (
-                  <p key={index}>{tonn.tonn}</p>
-                ))}
-              </div>
-            ) : (
-              ''
-            )}
-          </>
-      )
+      render: (record) => {
+        // Helper function to clean and parse numbers
+        const parseTonn = (tonn) => {
+          if (!tonn) return 0;
+          // Remove spaces and replace commas with dots
+          const cleanedTonn = tonn.replace(/\s/g, '').replace(',', '.');
+          return parseFloat(cleanedTonn) || 0;
+        };
+      
+        // Calculate the total sum of tonn values
+        const totalTonn = record.Supplier && record.Supplier.Tonns
+          ? record.Supplier.Tonns.reduce((sum, tonn) => sum + parseTonn(tonn.tonn), 0)
+          : 0;
+      
+        return (
+          <strong>{totalTonn.toFixed(2)}</strong>
+        );
+      }
     },
     { title: 'Тоннаж Отгрузки', key: 'fillTonns1',
-      render: (record) => (
-        <>
-            {record.Buyer && record.Buyer.Tonns && record.Buyer.Tonns.length > 0 ? (
-              <div className='flex flex-wrap gap-2'>
-                {record.Buyer.Tonns.map((tonn, index) => (
-                  <p key={index}>{tonn.tonn}</p>
-                ))}
-              </div>
-            ) : (
-              ''
-            )}
-          </>
-      )
+      render: (record) => {
+        // Helper function to clean and parse numbers
+        const parseTonn = (tonn) => {
+          if (!tonn) return 0;
+          // Remove spaces and replace commas with dots
+          const cleanedTonn = tonn.replace(/\s/g, '').replace(',', '.');
+          return parseFloat(cleanedTonn) || 0;
+        };
+      
+        // Calculate the total sum of tonn values
+        const totalTonn = record.Buyer && record.Buyer.Tonns
+          ? record.Buyer.Tonns.reduce((sum, tonn) => sum + parseTonn(tonn.tonn), 0)
+          : 0;
+      
+        return (
+          <strong>{totalTonn.toFixed(2)}</strong>
+        );
+      }
      },
     {
       title: 'Статус',
@@ -156,7 +170,7 @@ const DealsList = () => {
       >
         Создать новую сделку +
       </Button>
-      <Table dataSource={deals} columns={columns} />
+      <Table className='mt-4' dataSource={deals} columns={columns} loading={loading} />
       <DealCreate
         visible={modalVisible}
         onCreate={onCreate}
