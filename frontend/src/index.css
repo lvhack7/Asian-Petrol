@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.bg-vgo { background-color: #a2b5dc; }
+.bg-vgo-2 { background-color: #dbe0ef; }
+.bg-mazut { background-color: #b5d8a4; }
+.bg-dt { background-color: #ddd5c3; }
+.bg-neft { background-color: #d3956e; }
+.bg-ai-92-k4 { background-color: #f0b04c; }
+.bg-ai-92-k5 { background-color: #f8e08d; }
+.bg-nefras { background-color: #5473a6; }
+.bg-gaz { background-color: #9e9a94; }
+.bg-pechnoe-toplivo { background-color: #858793; }
+.bg-aviakerosin { background-color: #a69784; }
+.bg-dtz-k4-k5 { background-color: #d2cdc0; }
+.bg-ai-92-k4-k5 { background-color: #f1c653; }
+.bg-ai-95-k4 { background-color: #f9e4a3; }
+.bg-ai-80 { background-color: #b5d8a4; }
+.bg-koks { background-color: #af853c; }
+.bg-paraksilol { background-color: #6fc5e7; }
+.bg-sudovoe-toplivo { background-color: #bde4df; }
+.bg-nafta { background-color: #aaa8a4; }
+.bg-dt-a-k5 { background-color: #f9e465; }
+.bg-ai-98 { background-color: #a6e5b4; }

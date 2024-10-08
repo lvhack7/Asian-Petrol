@@ -4,7 +4,8 @@ import LoginPage from './pages/LoginPage';
 import DealsPage from './pages/DealsPage';
 import { ReferencePage } from './pages/ReferencePage';
 import Layout from './components/Layout';
-import PassportPage from './pages/PassportPage';
+import KZPassport from './pages/PassportKZ';
+import KGPassport from './pages/PassportKG';
 
 const App = () => {
 	return (
@@ -13,7 +14,8 @@ const App = () => {
 				<Route path='/' element={<Layout/>}>
 					<Route index element={<DealsPage/>} />
 					<Route path='reference' element={<ReferencePage/>} />
-					<Route path='passport' element={<PassportPage/>} />
+					<Route path='passport-kg' element={<KGPassport/>} />
+					<Route path='passport-kz' element={<KZPassport/>} />
 				</Route>
 				<Route path="login" element={<LoginPage/>} />
 				<Route path='*' element={<Navigate to='login' />} />

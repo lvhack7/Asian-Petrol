@@ -10,8 +10,11 @@ const Navbar = () => {
         <Link to={"/deals"} className='text-blue-500'>
             Сделки
         </Link>
-        <Link to={"/passport"} className='text-blue-500'>
-            Паспорт
+        <Link to={"/passport-kz"} className='text-blue-500'>
+            Паспорт KZ
+        </Link>
+        <Link to={"/passport-kg"} className='text-blue-500'>
+            Паспорт KG
         </Link>
     </nav>
   )

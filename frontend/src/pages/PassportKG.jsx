@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import dealService from '../services/dealService'
-import { Table, Button, notification, Typography } from 'antd';
+import { Table, notification, Typography, Empty, Spin } from 'antd';
 
 const {Text} = Typography
 
@@ -20,28 +20,27 @@ function formatNumber(number) {
 }
 
 const fuelColorMapping = {
-  "ВГО": "#a2b5dc",
-  "ВГО 2%": "#dbe0ef",
-  "Мазут": "#b5d8a4",
-  "ДТ": "#ddd5c3",
-  "Нефть": "#d3956e",
-  "АИ-92 К4": "#f0b04c",
-  "АИ-92 К5": "#f8e08d",
-  "Нефрас": "#5473a6",
-  "Газ": "#9e9a94",
-  "Печное топливо": "#858793",
-  "Авиакеросин": "#a69784",
-  "ДТЗ-К4/К5": "#d2cdc0",
-  "АИ-92 К4/К5": "#f1c653",
-  "Аи-95-К4": "#f9e4a3",
-  "Аи-95": "#f9e4a3",
-  "АИ-80": "#b5d8a4",
-  "Кокс": "#af853c",
-  "Параксилол": "#6fc5e7",
-  "Судовое топливо": "#bde4df",
-  "Нафта": "#aaa8a4",
-  "ДТ-А-К5": "#f9e465",
-  "АИ-98": "#a6e5b4"
+  "ВГО": "bg-vgo",
+  "ВГО 2%": "bg-vgo-2",
+  "Мазут": "bg-mazut",
+  "ДТ": "bg-dt",
+  "Нефть": "bg-neft",
+  "АИ-92 К4": "bg-ai-92-k4",
+  "АИ-92 К5": "bg-ai-92-k5",
+  "Нефрас": "bg-nefras",
+  "Газ": "bg-gaz",
+  "Печное топливо": "bg-pechnoe-toplivo",
+  "Авиакеросин": "bg-aviakerosin",
+  "ДТЗ-К4/К5": "bg-dtz-k4-k5",
+  "АИ-92 К4/К5": "bg-ai-92-k4-k5",
+  "Аи-95-К4": "bg-ai-95-k4",
+  "АИ-80": "bg-ai-80",
+  "Кокс": "bg-koks",
+  "Параксилол": "bg-paraksilol",
+  "Судовое топливо": "bg-sudovoe-toplivo",
+  "Нафта": "bg-nafta",
+  "ДТ-А-К5": "bg-dt-a-k5",
+  "АИ-98": "bg-ai-98",
 };
 
 const columns = [
@@ -73,15 +72,7 @@ const columns = [
       title: 'Вид ГСМ', // Factory
       dataIndex: 'fuelType',
       key: 'fuelType',
-      render: (text) => ({
-        props: {
-          style: {
-            backgroundColor: fuelColorMapping[text], // Background color for the entire cell
-            padding: '10px',
-          },
-        },
-        children: <div>{text}</div>,
-      }),
+      render: (text) => text || ''
     },
     {
       title: 'Содержание серы, %', // Sulfur Content
@@ -125,33 +116,66 @@ const columns = [
       key: 'fixationCondition',
       render: (text) => text || '',
     },
+    // {
+    //   title: 'Дата загрузки', // Fill Date
+    //   dataIndex: ['Supplier', 'fillDate'],
+    //   key: 'fillDate',
+    //   render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
+    // },
     {
-      title: 'Дата загрузки', // Fill Date
-      dataIndex: ['Supplier', 'fillDate'],
-      key: 'fillDate',
-      render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
-    },
-    {
-      title: 'Налив поставщик',
-      key: 'suppTonns',
-      render: (record) => (
-        <>
-          {record.Supplier && record.Supplier.Tonns && record.Supplier.Tonns.length > 0 ? (
-            record.Supplier.Tonns.map((tonn, index) => (
-              <div key={index} className="flex flex-col mt-3">
-                <div>
-                  <strong>Тонн:</strong> {formatNumber(tonn.tonn)}
-                </div>
-                <div>
-                  <strong>Дата:</strong> {new Date(tonn.date).toLocaleDateString()}
-                </div>
-              </div>
-            ))
-          ) : (
-            ''
-          )}
-        </>
-      ),
+      title: 'Налив поставщик', // Parent column for Supplier Shipment
+      children: [
+        {
+          title: 'Тонн', // Column for Tonn
+          key: 'suppTonn',
+          render: (record) => (
+            <>
+              {record.Supplier && record.Supplier.Tonns && record.Supplier.Tonns.length > 0 ? (
+                record.Supplier.Tonns.map((tonn, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      width: '100%', // Ensures the div spans the full width
+                      borderBottom: '1px solid #e0e0e0', // Full-width separator
+                      marginBottom: '4px',
+                      padding: '0', // Remove any padding within the div
+                    }}
+                  >
+                    {formatNumber(tonn.tonn)}
+                  </div>
+                ))
+              ) : (
+                ''
+              )}
+            </>
+          ),
+        },
+        {
+          title: 'Дата отгрузки', // Column for Date
+          key: 'suppDate',
+          render: (record) => (
+            <>
+              {record.Supplier && record.Supplier.Tonns && record.Supplier.Tonns.length > 0 ? (
+                record.Supplier.Tonns.map((tonn, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      width: '100%', // Ensures the div spans the full width
+                      borderBottom: '1px solid #e0e0e0', // Full-width separator
+                      marginBottom: '4px',
+                      padding: '0', // Remove any padding within the div
+                    }}
+                  >
+                    {new Date(tonn.date).toLocaleDateString()}
+                  </div>
+                ))
+              ) : (
+                ''
+              )}
+            </>
+          ),
+        },
+      ],
     },
     {
       title: 'Цены поставщика', // Supplier Prices
@@ -240,26 +264,43 @@ const columns = [
       render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
     },
     {
-      title: 'Отгрузка покупателя',
-      key: 'buyTonns',
-      render: (record) => (
-        <>
-          {record.Buyer && record.Buyer.Tonns && record.Buyer.Tonns.length > 0 ? (
-            record.Buyer.Tonns.map((tonn, index) => (
-              <div key={index} className="flex flex-col mt-3">
-                <div>
-                  <strong>Тонн:</strong> {formatNumber(tonn.tonn)}
-                </div>
-                <div>
-                  <strong>Дата:</strong> {new Date(tonn.date).toLocaleDateString()}
-                </div>
-              </div>
-            ))
-          ) : (
-            ''
-          )}
-        </>
-      ),
+      title: 'Отгрузка покупателя', // Parent column for Buyer Shipment
+      children: [
+        {
+          title: 'Тонн', // Column for Tonn
+          key: 'buyTonn',
+          render: (record) => (
+            <>
+              {record.Buyer && record.Buyer.Tonns && record.Buyer.Tonns.length > 0 ? (
+                record.Buyer.Tonns.map((tonn, index) => (
+                  <div key={index}>
+                    {formatNumber(tonn.tonn)}
+                  </div>
+                ))
+              ) : (
+                ''
+              )}
+            </>
+          ),
+        },
+        {
+          title: 'Дата', // Column for Date
+          key: 'buyDate',
+          render: (record) => (
+            <>
+              {record.Buyer && record.Buyer.Tonns && record.Buyer.Tonns.length > 0 ? (
+                record.Buyer.Tonns.map((tonn, index) => (
+                  <div key={index}>
+                    {new Date(tonn.date).toLocaleDateString()}
+                  </div>
+                ))
+              ) : (
+                ''
+              )}
+            </>
+          ),
+        },
+      ],
     },
     {
       title: 'Цены покупателя', // Supplier Prices
@@ -428,56 +469,50 @@ const columns = [
       },
 ]
 
-const PassportPage = () => {
-  const [deals, setDeals] = useState([])
+const KGPassport = () => {
+  const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-      fetchDeals()
-  }, [])
+    fetchDeals();
+  }, []);
 
   const fetchDeals = async () => {
-      setLoading(true)
-      try {
-        const { data } = await dealService.getDeals();
-        console.log("DATA: ", data)
-        setDeals(data);
-      } catch (error) {
-        localStorage.removeItem('token');
-        notification.error({ message: 'Не удалось получить сделки!' });
-      } finally {
-        setLoading(false);
-      }
+    setLoading(true);
+    try {
+      const { data } = await dealService.getDeals();
+      setDeals(data.filter((deal) => deal.type === 'KG'));
+    } catch (error) {
+      localStorage.removeItem('token');
+      notification.error({ message: 'Не удалось получить сделки!' });
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const KZDeals = deals.filter((deal) => deal.type === 'KZ');
-  const KGDeals = deals.filter((deal) => deal.type === 'KG');
 
   return (
     <>
-      <h2 className='font-semibold text-2xl mb-4'>KZ Паспорт</h2>
-      <Table
-        className='overflow-x-auto'
-        columns={columns}
-        dataSource={KZDeals}
-        rowKey="dealNumber"
-        bordered
-        loading={loading}
-        pagination={false} // Add pagination if needed
-      />
-
-      <h2 className='font-semibold text-2xl mb-4 mt-16'>KG Паспорт</h2>
-      <Table
-        className='overflow-x-auto'
-        columns={columns}
-        dataSource={KGDeals}
-        rowKey="dealNumber"
-        bordered
-        loading={loading}
-        pagination={false} // Add pagination if needed
-      />
+      <h2 className="font-semibold text-2xl mb-4">KG Паспорт</h2>
+      <Spin spinning={loading} tip="Загрузка данных...">
+        {deals.length > 0 ? (
+          <Table
+            className="overflow-x-auto"
+            columns={columns}
+            dataSource={deals}
+            rowKey="dealNumber"
+            bordered
+            pagination={{ pageSize: 10 }}
+            rowClassName={(record, index) => {
+              const color = fuelColorMapping[record.fuelType];
+              return color || '';
+            }}
+          />
+        ) : (
+          <Empty description="Нет данных для KG" />
+        )}
+      </Spin>
     </>
   );
-}
+};
 
-export default PassportPage
+export default KGPassport;
