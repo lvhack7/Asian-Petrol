@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, notification } from 'antd';
+import { Table, Button, notification, message } from 'antd';
 import dealService from '../services/dealService';
+import refService from '../services/refService';
 import DealCreate from './DealForm';
 import DealEdit from './DealEdit';
 
@@ -30,10 +31,28 @@ const DealsList = () => {
   const [editModal, setEditModal] = useState(false)
   const [editRecord, setEditRecord] = useState(null);
   const [loading, setLoading] = useState(false)
+  const [mapping, setMapping] = useState({})
 
   useEffect(() => {
+    fetchColors();
     fetchDeals();
   }, []);
+
+  useEffect(() => {
+    const styleTag = document.createElement('style');
+    let styles = '';
+    Object.keys(mapping).forEach((fuelType) => {
+      const color = mapping[fuelType];
+      styles += `.row-${fuelType} { background-color: ${color} !important; }\n`;
+    });
+    styleTag.innerHTML = styles;
+    document.head.appendChild(styleTag);
+
+    // Cleanup: Remove the style tag on unmount
+    return () => {
+      document.head.removeChild(styleTag);
+    };
+  }, [mapping]);
 
   const onCreate = async (values) => {
     try {
@@ -70,6 +89,23 @@ const DealsList = () => {
     } catch (error) {
       localStorage.removeItem('token');
       notification.error({ message: 'Не удалось получить сделки!' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchColors = async () => {
+    setLoading(true);
+    try {
+      const response = await refService.getRef("fuleType"); // Assuming `refService` is correctly defined
+      console.log(response.data)
+      const colorDictionary = response.data.reduce((acc, item) => {
+        acc[item.name] = item.color;
+        return acc;
+      }, {});
+      setMapping(colorDictionary)
+    } catch (error) {
+      message.error('Failed to fetch items');
     } finally {
       setLoading(false);
     }
@@ -170,7 +206,13 @@ const DealsList = () => {
       >
         Создать новую сделку +
       </Button>
-      <Table className='mt-4' dataSource={deals} columns={columns} loading={loading} />
+      <Table 
+        className='mt-4' 
+        dataSource={deals} 
+        columns={columns} 
+        loading={loading} 
+        rowClassName={(record) => `row-${record.fuelType}`}
+      />
       <DealCreate
         visible={modalVisible}
         onCreate={onCreate}
