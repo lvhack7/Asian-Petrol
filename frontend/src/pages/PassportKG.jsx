@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import dealService from '../services/dealService'
-import { Table, notification, Typography, Empty, Spin } from 'antd';
+import { Table, notification, Typography, Empty, Spin, message } from 'antd';
+import refService from '../services/refService';
+
 
 const {Text} = Typography
-
 
 function formatNumber(number) {
   if (!number) return '';
@@ -178,29 +179,93 @@ const columns = [
       ],
     },
     {
-      title: 'Цены поставщика', // Supplier Prices
-      key: 'supplierPrices',
-      render: (record) => (
-        <>
-          {record.Supplier && record.Supplier.Prices && record.Supplier.Prices.length > 0 ? (
-            record.Supplier.Prices.map((price, index) => (
-              <div key={index} className="flex flex-col mt-3">
-              <div>
-                <strong>Цена:</strong> {formatNumber(price.price)} {price.currency}
-              </div>
-              <div>
-                <strong>Скидка:</strong> {price.discount}
-              </div>
-              <div>
-                <strong>Котировка:</strong> {price.quotation}
-              </div>
-            </div>
-            ))
-          ) : (
-            ''
-          )}
-        </>
-      )
+      title: 'Цены поставщика', // Parent column for Supplier Prices
+      children: [
+          {
+              title: 'Цена', // Column for Price
+              key: 'price',
+              render: (record) => (
+                  <>
+                      {record.Supplier?.Prices.map((price, index) => (
+                          <div
+                              key={`price-${index}`}
+                              style={{
+                                  width: '100%',
+                                  borderBottom: '1px solid #e0e0e0',
+                                  marginBottom: '4px',
+                                  padding: '0',
+                              }}
+                          >
+                              {price.price ?? 'Пусто'}
+                          </div>
+                      ))}
+                  </>
+              ),
+          },
+          {
+              title: 'Валюта', // Column for Currency
+              key: 'currency',
+              render: (record) => (
+                  <>
+                      {record.Supplier?.Prices.map((price, index) => (
+                          <div
+                              key={`currency-${index}`}
+                              style={{
+                                  width: '100%',
+                                  borderBottom: '1px solid #e0e0e0',
+                                  marginBottom: '4px',
+                                  padding: '0',
+                              }}
+                          >
+                              {price.currency ?? 'Пусто'}
+                          </div>
+                      ))}
+                  </>
+              ),
+          },
+          {
+              title: 'Скидка', // Column for Discount
+              key: 'discount',
+              render: (record) => (
+                  <>
+                      {record.Supplier?.Prices.map((price, index) => (
+                          <div
+                              key={`discount-${index}`}
+                              style={{
+                                  width: '100%',
+                                  borderBottom: '1px solid #e0e0e0',
+                                  marginBottom: '4px',
+                                  padding: '0',
+                              }}
+                          >
+                              {price.discount ?? 'Пусто'}
+                          </div>
+                      ))}
+                  </>
+              ),
+          },
+          {
+              title: 'Котировка', // Column for Quotation
+              key: 'quotation',
+              render: (record) => (
+                  <>
+                      {record.Supplier?.Prices.map((price, index) => (
+                          <div
+                              key={`quotation-${index}`}
+                              style={{
+                                  width: '100%',
+                                  borderBottom: '1px solid #e0e0e0',
+                                  marginBottom: '4px',
+                                  padding: '0',
+                              }}
+                          >
+                              {price.quotation ?? 'Пусто'}
+                          </div>
+                      ))}
+                  </>
+              ),
+          },
+      ],
     },
     {
       title: 'Сумма  отгрузки, (факт)', // Supplier Amount
@@ -472,10 +537,28 @@ const columns = [
 const KGPassport = () => {
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [mapping, setMapping] = useState({})
 
   useEffect(() => {
     fetchDeals();
+    fetchColors();
   }, []);
+
+  const fetchColors = async () => {
+    setLoading(true);
+    try {
+      const response = await refService.getRef("fuelType"); // Assuming `refService` is correctly defined
+      const colorDictionary = response.data.reduce((acc, item) => {
+        acc[item.title] = item.color;
+        return acc;
+      }, {});
+      setMapping(colorDictionary)
+    } catch (error) {
+      message.error('Failed to fetch items');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchDeals = async () => {
     setLoading(true);
@@ -503,7 +586,7 @@ const KGPassport = () => {
             bordered
             pagination={{ pageSize: 10 }}
             rowClassName={(record, index) => {
-              const color = fuelColorMapping[record.fuelType];
+              const color = mapping[record.fuelType];
               return color || '';
             }}
           />

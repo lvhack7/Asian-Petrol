@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import dealService from '../services/dealService'
-import { Table, Button, notification, Typography, Empty, Spin } from 'antd';
+import { Table, notification, Typography, Empty, Spin, message } from 'antd';
+import refService from '../services/refService';
+
 
 const {Text} = Typography
-
 
 function formatNumber(number) {
   if (!number) return '';
@@ -472,10 +473,28 @@ const columns = [
 const KZPassport = () => {
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [mapping, setMapping] = useState({})
 
   useEffect(() => {
     fetchDeals();
+    fetchColors()
   }, []);
+
+  const fetchColors = async () => {
+    setLoading(true);
+    try {
+      const response = await refService.getRef("fuelType"); // Assuming `refService` is correctly defined
+      const colorDictionary = response.data.reduce((acc, item) => {
+        acc[item.title] = item.color;
+        return acc;
+      }, {});
+      setMapping(colorDictionary)
+    } catch (error) {
+      message.error('Failed to fetch items');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchDeals = async () => {
     setLoading(true);
@@ -503,7 +522,7 @@ const KZPassport = () => {
             bordered
             pagination={{ pageSize: 10 }}
             rowClassName={(record, index) => {
-              const color = fuelColorMapping[record.fuelType];
+              const color = mapping[record.fuelType];
               return color || '';
             }}
           />

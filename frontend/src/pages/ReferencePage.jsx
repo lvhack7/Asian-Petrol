@@ -9,7 +9,8 @@ const references = [
   },
   {
     field: "fuleType",
-    title: "Вид ГСМ"
+    title: "Вид ГСМ",
+    color: true
   },
   {
     field: "supplier",
@@ -41,7 +42,7 @@ export const ReferencePage = () => {
   return (
     <div className='flex items-start flex-wrap gap-20'>
       {
-        references.map(ref => <RefForm field={ref.field} title={ref.title} />)
+        references.map(ref => <RefForm field={ref.field} title={ref.title} color={ref?.color || false} />)
       }
     </div>
   )
