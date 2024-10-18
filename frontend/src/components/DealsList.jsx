@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, notification, message } from 'antd';
+import { Table, Button, notification } from 'antd';
 import dealService from '../services/dealService';
 import refService from '../services/refService';
 import DealCreate from './DealForm';
@@ -115,6 +115,7 @@ const DealsList = () => {
     try {
       await dealService.deleteDeal(id)
       await fetchDeals();
+      notification.success({ message: 'Сделка успешно удалена!' });
     } catch(e) {
       notification.error({ message: 'Не удалось удалить сделку!' });
     }
