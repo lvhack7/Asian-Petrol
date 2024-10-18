@@ -16,4 +16,8 @@ const getDeals = () => {
   return axios.get(apiUrl, { headers: { Authorization: localStorage.getItem('token') } });
 };
 
-export default { createDeal, updateDeal, getDeals };
+const deleteDeal = (id) => {
+  return axios.delete(apiUrl+`${id}`, { headers: { Authorization: localStorage.getItem('token') } });
+};
+
+export default { createDeal, updateDeal, getDeals, deleteDeal };

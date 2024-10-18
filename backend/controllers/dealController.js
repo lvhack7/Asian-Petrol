@@ -12,6 +12,28 @@ exports.createDeal = async (req, res) => {
   return res.json(deal);
 };
 
+exports.deleteDeal = async (req, res) => {
+  try {
+    const dealId = req.params.id;  // Get the id from the URL
+
+    const result = await Deal.destroy({
+        where: {
+            id: dealId
+        }
+    });
+
+    if (result === 0) {
+        return res.status(404).json({ message: 'Сделка не найдена' });
+    }
+
+    // Send a success response
+    res.status(200).json({ message: 'Сделка успешно удалена!' });
+  } catch (error) {
+      console.error('Error deleting deal:', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+  }
+}
+
 exports.updateDeal = async (req, res) => {
   const { header, supplier, buyer, forwarder, company } = req.body;
 

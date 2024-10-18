@@ -105,11 +105,20 @@ const DealsList = () => {
       }, {});
       setMapping(colorDictionary)
     } catch (error) {
-      message.error('Failed to fetch items');
+      notification.error({ message: 'Не удалось получить сделки!' });
     } finally {
       setLoading(false);
     }
   };
+
+  const deleteDeal = async (id) => {
+    try {
+      await dealService.deleteDeal(id)
+      await fetchDeals();
+    } catch(e) {
+      notification.error({ message: 'Не удалось удалить сделку!' });
+    }
+  }
 
   const columns = [
     {
@@ -182,7 +191,8 @@ const DealsList = () => {
       title: 'Действия',
       key: 'actions',
       render: (record) => (
-        <Button
+        <div className='flex items-center space-x-1'>
+          <Button
           type="link"
           onClick={() => {
             setEditRecord(record);
@@ -191,6 +201,13 @@ const DealsList = () => {
         >
           Редактировать
         </Button>
+        <Button
+          type="link"
+          onClick={() => deleteDeal(record.id)}
+        >
+          Удалить
+        </Button>
+        </div>
       ),
     },
   ];

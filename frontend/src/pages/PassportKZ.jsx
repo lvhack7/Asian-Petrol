@@ -20,29 +20,6 @@ function formatNumber(number) {
   }).replace(/\s/g, ' ').replace(',', '.'); // Ensures space separator for thousands
 }
 
-const fuelColorMapping = {
-  "ВГО": "bg-vgo",
-  "ВГО 2%": "bg-vgo-2",
-  "Мазут": "bg-mazut",
-  "ДТ": "bg-dt",
-  "Нефть": "bg-neft",
-  "АИ-92 К4": "bg-ai-92-k4",
-  "АИ-92 К5": "bg-ai-92-k5",
-  "Нефрас": "bg-nefras",
-  "Газ": "bg-gaz",
-  "Печное топливо": "bg-pechnoe-toplivo",
-  "Авиакеросин": "bg-aviakerosin",
-  "ДТЗ-К4/К5": "bg-dtz-k4-k5",
-  "АИ-92 К4/К5": "bg-ai-92-k4-k5",
-  "Аи-95-К4": "bg-ai-95-k4",
-  "АИ-80": "bg-ai-80",
-  "Кокс": "bg-koks",
-  "Параксилол": "bg-paraksilol",
-  "Судовое топливо": "bg-sudovoe-toplivo",
-  "Нафта": "bg-nafta",
-  "ДТ-А-К5": "bg-dt-a-k5",
-  "АИ-98": "bg-ai-98",
-};
 
 const columns = [
   {
@@ -123,61 +100,6 @@ const columns = [
   //   key: 'fillDate',
   //   render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
   // },
-  {
-    title: 'Налив поставщик', // Parent column for Supplier Shipment
-    children: [
-      {
-        title: 'Тонн', // Column for Tonn
-        key: 'suppTonn',
-        render: (record) => (
-          <>
-            {record.Supplier && record.Supplier.Tonns && record.Supplier.Tonns.length > 0 ? (
-              record.Supplier.Tonns.map((tonn, index) => (
-                <div
-                  key={index}
-                  style={{
-                    width: '100%', // Ensures the div spans the full width
-                    borderBottom: '1px solid #e0e0e0', // Full-width separator
-                    marginBottom: '4px',
-                    padding: '0', // Remove any padding within the div
-                  }}
-                >
-                  {formatNumber(tonn.tonn)}
-                </div>
-              ))
-            ) : (
-              ''
-            )}
-          </>
-        ),
-      },
-      {
-        title: 'Дата отгрузки', // Column for Date
-        key: 'suppDate',
-        render: (record) => (
-          <>
-            {record.Supplier && record.Supplier.Tonns && record.Supplier.Tonns.length > 0 ? (
-              record.Supplier.Tonns.map((tonn, index) => (
-                <div
-                  key={index}
-                  style={{
-                    width: '100%', // Ensures the div spans the full width
-                    borderBottom: '1px solid #e0e0e0', // Full-width separator
-                    marginBottom: '4px',
-                    padding: '0', // Remove any padding within the div
-                  }}
-                >
-                  {new Date(tonn.date).toLocaleDateString()}
-                </div>
-              ))
-            ) : (
-              ''
-            )}
-          </>
-        ),
-      },
-    ],
-  },
   {
     title: 'Цены поставщика', // Parent column for Supplier Prices
     children: [
@@ -265,6 +187,82 @@ const columns = [
                 </>
             ),
         },
+        {
+          title: 'Коммент', // Column for Quotation
+          key: 'commentary',
+          render: (record) => (
+              <>
+                  {record.Supplier?.Prices.map((price, index) => (
+                      <div
+                          key={`commentary-${index}`}
+                          style={{
+                              width: '100%',
+                              borderBottom: '1px solid #e0e0e0',
+                              marginBottom: '4px',
+                              padding: '0',
+                          }}
+                      >
+                          {price.commentary ?? 'Пусто'}
+                      </div>
+                  ))}
+              </>
+          ),
+        },
+    ],
+  },
+  {
+    title: 'Налив поставщик', // Parent column for Supplier Shipment
+    children: [
+      {
+        title: 'Тонн', // Column for Tonn
+        key: 'suppTonn',
+        render: (record) => (
+          <>
+            {record.Supplier && record.Supplier.Tonns && record.Supplier.Tonns.length > 0 ? (
+              record.Supplier.Tonns.map((tonn, index) => (
+                <div
+                  key={index}
+                  style={{
+                    width: '100%', // Ensures the div spans the full width
+                    borderBottom: '1px solid #e0e0e0', // Full-width separator
+                    marginBottom: '4px',
+                    padding: '0', // Remove any padding within the div
+                  }}
+                >
+                  {formatNumber(tonn.tonn)}
+                </div>
+              ))
+            ) : (
+              ''
+            )}
+          </>
+        ),
+      },
+      {
+        title: 'Дата отгрузки', // Column for Date
+        key: 'suppDate',
+        render: (record) => (
+          <>
+            {record.Supplier && record.Supplier.Tonns && record.Supplier.Tonns.length > 0 ? (
+              record.Supplier.Tonns.map((tonn, index) => (
+                <div
+                  key={index}
+                  style={{
+                    width: '100%', // Ensures the div spans the full width
+                    borderBottom: '1px solid #e0e0e0', // Full-width separator
+                    marginBottom: '4px',
+                    padding: '0', // Remove any padding within the div
+                  }}
+                >
+                  {new Date(tonn.date).toLocaleDateString()}
+                </div>
+              ))
+            ) : (
+              ''
+            )}
+          </>
+        ),
+      },
     ],
   },
   {
@@ -327,45 +325,6 @@ const columns = [
     dataIndex: ['Buyer', 'dischargeDate'],
     key: 'dischargeDate',
     render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
-  },
-  {
-    title: 'Отгрузка покупателя', // Parent column for Buyer Shipment
-    children: [
-      {
-        title: 'Тонн', // Column for Tonn
-        key: 'buyTonn',
-        render: (record) => (
-          <>
-            {record.Buyer && record.Buyer.Tonns && record.Buyer.Tonns.length > 0 ? (
-              record.Buyer.Tonns.map((tonn, index) => (
-                <div key={index}>
-                  {formatNumber(tonn.tonn)}
-                </div>
-              ))
-            ) : (
-              ''
-            )}
-          </>
-        ),
-      },
-      {
-        title: 'Дата', // Column for Date
-        key: 'buyDate',
-        render: (record) => (
-          <>
-            {record.Buyer && record.Buyer.Tonns && record.Buyer.Tonns.length > 0 ? (
-              record.Buyer.Tonns.map((tonn, index) => (
-                <div key={index}>
-                  {new Date(tonn.date).toLocaleDateString()}
-                </div>
-              ))
-            ) : (
-              ''
-            )}
-          </>
-        ),
-      },
-    ],
   },
   {
     title: 'Цены покупателя', // Parent column for Supplier Prices
@@ -454,6 +413,66 @@ const columns = [
                 </>
             ),
         },
+        {
+          title: 'Коммент', // Column for Quotation
+          key: 'commentary',
+          render: (record) => (
+              <>
+                  {record.Buyer?.Prices.map((price, index) => (
+                      <div
+                          key={`commentary-${index}`}
+                          style={{
+                              width: '100%',
+                              borderBottom: '1px solid #e0e0e0',
+                              marginBottom: '4px',
+                              padding: '0',
+                          }}
+                      >
+                          {price.commentary ?? 'Пусто'}
+                      </div>
+                  ))}
+              </>
+          ),
+        },
+    ],
+  },
+  {
+    title: 'Отгрузка покупателя', // Parent column for Buyer Shipment
+    children: [
+      {
+        title: 'Тонн', // Column for Tonn
+        key: 'buyTonn',
+        render: (record) => (
+          <>
+            {record.Buyer && record.Buyer.Tonns && record.Buyer.Tonns.length > 0 ? (
+              record.Buyer.Tonns.map((tonn, index) => (
+                <div key={index}>
+                  {formatNumber(tonn.tonn)}
+                </div>
+              ))
+            ) : (
+              ''
+            )}
+          </>
+        ),
+      },
+      {
+        title: 'Дата', // Column for Date
+        key: 'buyDate',
+        render: (record) => (
+          <>
+            {record.Buyer && record.Buyer.Tonns && record.Buyer.Tonns.length > 0 ? (
+              record.Buyer.Tonns.map((tonn, index) => (
+                <div key={index}>
+                  {new Date(tonn.date).toLocaleDateString()}
+                </div>
+              ))
+            ) : (
+              ''
+            )}
+          </>
+        ),
+      },
     ],
   },
   {
@@ -657,6 +676,27 @@ const columns = [
                       ))}
                   </>
               ),
+          },
+          {
+            title: 'Коммент', // Column for Quotation
+            key: 'commentary',
+            render: (record) => (
+                <>
+                    {record.CompanyGroup?.Prices.map((price, index) => (
+                        <div
+                            key={`commentary-${index}`}
+                            style={{
+                                width: '100%',
+                                borderBottom: '1px solid #e0e0e0',
+                                marginBottom: '4px',
+                                padding: '0',
+                            }}
+                        >
+                            {price.commentary ?? 'Пусто'}
+                        </div>
+                    ))}
+                </>
+            ),
           },
       ],
     },
