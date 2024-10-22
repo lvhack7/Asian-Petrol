@@ -103,98 +103,35 @@ const columns = [
   {
     title: 'Цены поставщика', // Parent column for Supplier Prices
     children: [
-        {
-            title: 'Цена', // Column for Price
-            key: 'price',
-            render: (record) => (
-                <>
-                    {record.Supplier?.Prices.map((price, index) => (
-                        <div
-                            key={`price-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.price ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-        {
-            title: 'Валюта', // Column for Currency
-            key: 'currency',
-            render: (record) => (
-                <>
-                    {record.Supplier?.Prices.map((price, index) => (
-                        <div
-                            key={`currency-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.currency ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-        {
-            title: 'Скидка', // Column for Discount
-            key: 'discount',
-            render: (record) => (
-                <>
-                    {record.Supplier?.Prices.map((price, index) => (
-                        <div
-                            key={`discount-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.discount ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-        {
-            title: 'Котировка', // Column for Quotation
-            key: 'quotation',
-            render: (record) => (
-                <>
-                    {record.Supplier?.Prices.map((price, index) => (
-                        <div
-                            key={`quotation-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.quotation ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-        {
-          title: 'Коммент', // Column for Quotation
-          key: 'commentary',
+      {
+        title: 'Валюта', // Column for Currency
+        key: 'currency',
+        render: (record) => (
+            <>
+                {record.Supplier?.Prices.map((price, index) => (
+                    <div
+                        key={`currency-${index}`}
+                        style={{
+                            width: '100%',
+                            borderBottom: '1px solid #e0e0e0',
+                            marginBottom: '4px',
+                            padding: '0',
+                        }}
+                    >
+                        {price.currency ?? 'Пусто'}
+                    </div>
+                ))}
+            </>
+        ),
+      },
+      {
+          title: 'Котировка', // Column for Quotation
+          key: 'quotation',
           render: (record) => (
               <>
                   {record.Supplier?.Prices.map((price, index) => (
                       <div
-                          key={`commentary-${index}`}
+                          key={`quotation-${index}`}
                           style={{
                               width: '100%',
                               borderBottom: '1px solid #e0e0e0',
@@ -202,12 +139,75 @@ const columns = [
                               padding: '0',
                           }}
                       >
-                          {price.commentary ?? 'Пусто'}
+                          {price.quotation ?? 'Пусто'}
                       </div>
                   ))}
               </>
           ),
-        },
+      },
+      {
+        title: 'Скидка', // Column for Discount
+        key: 'discount',
+        render: (record) => (
+            <>
+                {record.Supplier?.Prices.map((price, index) => (
+                    <div
+                        key={`discount-${index}`}
+                        style={{
+                            width: '100%',
+                            borderBottom: '1px solid #e0e0e0',
+                            marginBottom: '4px',
+                            padding: '0',
+                        }}
+                    >
+                        {price.discount ?? 'Пусто'}
+                    </div>
+                ))}
+            </>
+        ),
+      },
+      {
+          title: 'Цена', // Column for Price
+          key: 'price',
+          render: (record) => (
+              <>
+                  {record.Supplier?.Prices.map((price, index) => (
+                      <div
+                          key={`price-${index}`}
+                          style={{
+                              width: '100%',
+                              borderBottom: '1px solid #e0e0e0',
+                              marginBottom: '4px',
+                              padding: '0',
+                          }}
+                      >
+                          {price.price ?? 'Пусто'}
+                      </div>
+                  ))}
+              </>
+          ),
+      },
+      {
+        title: 'Коммент', // Column for Quotation
+        key: 'commentary',
+        render: (record) => (
+            <>
+                {record.Supplier?.Prices.map((price, index) => (
+                    <div
+                        key={`commentary-${index}`}
+                        style={{
+                            width: '100%',
+                            borderBottom: '1px solid #e0e0e0',
+                            marginBottom: '4px',
+                            padding: '0',
+                        }}
+                    >
+                        {price.commentary ?? 'Пусто'}
+                    </div>
+                ))}
+            </>
+        ),
+      },
     ],
   },
   {
@@ -273,106 +273,46 @@ const columns = [
     } 
   },
   {
-    title: 'Группа компании', // Buyer Prices
-    key: 'companyGroups',
+    title: 'Группа компании', // First name column
+    key: 'companyGroupName1',
     dataIndex: ['CompanyGroup', 'names'],
-    render: (text) => text || '',
+    render: (text) => {
+      const names = text ? text.split(',') : [];
+      return names[0] || ''; // Render the first name
+    },
   },
   {
     title: 'Цены Группа Компаний', // Parent column for Supplier Prices
     children: [
-        {
-            title: 'Цена', // Column for Price
-            key: 'price',
-            render: (record) => (
-                <>
-                    {record.CompanyGroup?.Prices.map((price, index) => (
-                        <div
-                            key={`price-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.price ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-        {
-            title: 'Валюта', // Column for Currency
-            key: 'currency',
-            render: (record) => (
-                <>
-                    {record.CompanyGroup?.Prices.map((price, index) => (
-                        <div
-                            key={`currency-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.currency ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-        {
-            title: 'Скидка', // Column for Discount
-            key: 'discount',
-            render: (record) => (
-                <>
-                    {record.CompanyGroup?.Prices.map((price, index) => (
-                        <div
-                            key={`discount-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.discount ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-        {
-            title: 'Котировка', // Column for Quotation
-            key: 'quotation',
-            render: (record) => (
-                <>
-                    {record.CompanyGroup?.Prices.map((price, index) => (
-                        <div
-                            key={`quotation-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.quotation ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-        {
-          title: 'Коммент', // Column for Quotation
-          key: 'commentary',
+      {
+        title: 'Валюта', // Column for Currency
+        key: 'currency',
+        render: (record) => (
+            <>
+                {record.CompanyGroup?.Prices.map((price, index) => (
+                    <div
+                        key={`currency-${index}`}
+                        style={{
+                            width: '100%',
+                            borderBottom: '1px solid #e0e0e0',
+                            marginBottom: '4px',
+                            padding: '0',
+                        }}
+                    >
+                        {price.currency ?? 'Пусто'}
+                    </div>
+                ))}
+            </>
+        ),
+      },
+      {
+          title: 'Котировка', // Column for Quotation
+          key: 'quotation',
           render: (record) => (
               <>
                   {record.CompanyGroup?.Prices.map((price, index) => (
                       <div
-                          key={`commentary-${index}`}
+                          key={`quotation-${index}`}
                           style={{
                               width: '100%',
                               borderBottom: '1px solid #e0e0e0',
@@ -380,13 +320,85 @@ const columns = [
                               padding: '0',
                           }}
                       >
-                          {price.commentary ?? 'Пусто'}
+                          {price.quotation ?? 'Пусто'}
                       </div>
                   ))}
               </>
           ),
-        },
+      },
+      {
+        title: 'Скидка', // Column for Discount
+        key: 'discount',
+        render: (record) => (
+            <>
+                {record.CompanyGroup?.Prices.map((price, index) => (
+                    <div
+                        key={`discount-${index}`}
+                        style={{
+                            width: '100%',
+                            borderBottom: '1px solid #e0e0e0',
+                            marginBottom: '4px',
+                            padding: '0',
+                        }}
+                    >
+                        {price.discount ?? 'Пусто'}
+                    </div>
+                ))}
+            </>
+        ),
+      },
+      {
+          title: 'Цена', // Column for Price
+          key: 'price',
+          render: (record) => (
+              <>
+                  {record.CompanyGroup?.Prices.map((price, index) => (
+                      <div
+                          key={`price-${index}`}
+                          style={{
+                              width: '100%',
+                              borderBottom: '1px solid #e0e0e0',
+                              marginBottom: '4px',
+                              padding: '0',
+                          }}
+                      >
+                          {price.price ?? 'Пусто'}
+                      </div>
+                  ))}
+              </>
+          ),
+      },
+      {
+        title: 'Коммент', // Column for Quotation
+        key: 'commentary',
+        render: (record) => (
+            <>
+                {record.CompanyGroup?.Prices.map((price, index) => (
+                    <div
+                        key={`commentary-${index}`}
+                        style={{
+                            width: '100%',
+                            borderBottom: '1px solid #e0e0e0',
+                            marginBottom: '4px',
+                            padding: '0',
+                        }}
+                    >
+                        {price.commentary ?? 'Пусто'}
+                    </div>
+                ))}
+            </>
+        ),
+      },
     ],
+  },
+  {
+    title: 'Группа компании 2', // Second name column
+    key: 'companyGroupName2',
+    dataIndex: ['CompanyGroup', 'names'],
+    render: (text) => {
+      const names = text ? text.split(',') : [];
+      return names[1] || ''; // Render the second name (if it exists)
+    },
   },
   {
     title: 'Покупатель', // Buyer Name
@@ -445,98 +457,35 @@ const columns = [
   {
     title: 'Цены покупателя', // Parent column for Supplier Prices
     children: [
-        {
-            title: 'Цена', // Column for Price
-            key: 'price',
-            render: (record) => (
-                <>
-                    {record.Buyer?.Prices.map((price, index) => (
-                        <div
-                            key={`price-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.price ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-        {
-            title: 'Валюта', // Column for Currency
-            key: 'currency',
-            render: (record) => (
-                <>
-                    {record.Buyer?.Prices.map((price, index) => (
-                        <div
-                            key={`currency-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.currency ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-        {
-            title: 'Скидка', // Column for Discount
-            key: 'discount',
-            render: (record) => (
-                <>
-                    {record.Buyer?.Prices.map((price, index) => (
-                        <div
-                            key={`discount-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.discount ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-        {
-            title: 'Котировка', // Column for Quotation
-            key: 'quotation',
-            render: (record) => (
-                <>
-                    {record.Buyer?.Prices.map((price, index) => (
-                        <div
-                            key={`quotation-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.quotation ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-        {
-          title: 'Коммент', // Column for Quotation
-          key: 'commentary',
+      {
+        title: 'Валюта', // Column for Currency
+        key: 'currency',
+        render: (record) => (
+            <>
+                {record.Buyer?.Prices.map((price, index) => (
+                    <div
+                        key={`currency-${index}`}
+                        style={{
+                            width: '100%',
+                            borderBottom: '1px solid #e0e0e0',
+                            marginBottom: '4px',
+                            padding: '0',
+                        }}
+                    >
+                        {price.currency ?? 'Пусто'}
+                    </div>
+                ))}
+            </>
+        ),
+      },
+      {
+          title: 'Котировка', // Column for Quotation
+          key: 'quotation',
           render: (record) => (
               <>
                   {record.Buyer?.Prices.map((price, index) => (
                       <div
-                          key={`commentary-${index}`}
+                          key={`quotation-${index}`}
                           style={{
                               width: '100%',
                               borderBottom: '1px solid #e0e0e0',
@@ -544,12 +493,75 @@ const columns = [
                               padding: '0',
                           }}
                       >
-                          {price.commentary ?? 'Пусто'}
+                          {price.quotation ?? 'Пусто'}
                       </div>
                   ))}
               </>
           ),
-        },
+      },
+      {
+        title: 'Скидка', // Column for Discount
+        key: 'discount',
+        render: (record) => (
+            <>
+                {record.Buyer?.Prices.map((price, index) => (
+                    <div
+                        key={`discount-${index}`}
+                        style={{
+                            width: '100%',
+                            borderBottom: '1px solid #e0e0e0',
+                            marginBottom: '4px',
+                            padding: '0',
+                        }}
+                    >
+                        {price.discount ?? 'Пусто'}
+                    </div>
+                ))}
+            </>
+        ),
+      },
+      {
+          title: 'Цена', // Column for Price
+          key: 'price',
+          render: (record) => (
+              <>
+                  {record.Buyer?.Prices.map((price, index) => (
+                      <div
+                          key={`price-${index}`}
+                          style={{
+                              width: '100%',
+                              borderBottom: '1px solid #e0e0e0',
+                              marginBottom: '4px',
+                              padding: '0',
+                          }}
+                      >
+                          {price.price ?? 'Пусто'}
+                      </div>
+                  ))}
+              </>
+          ),
+      },
+      {
+        title: 'Коммент', // Column for Quotation
+        key: 'commentary',
+        render: (record) => (
+            <>
+                {record.Buyer?.Prices.map((price, index) => (
+                    <div
+                        key={`commentary-${index}`}
+                        style={{
+                            width: '100%',
+                            borderBottom: '1px solid #e0e0e0',
+                            marginBottom: '4px',
+                            padding: '0',
+                        }}
+                    >
+                        {price.commentary ?? 'Пусто'}
+                    </div>
+                ))}
+            </>
+        ),
+      },
     ],
   },
   {
