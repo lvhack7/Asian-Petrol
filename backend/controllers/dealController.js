@@ -47,7 +47,7 @@ exports.updateDeal = async (req, res) => {
     const transaction = await sequelize.transaction();
 
     try {
-      let deal = await Deal.findOne({ where: { dealNumber: header.dealNumber }, transaction });
+      let deal = await Deal.findOne({ where: { dealNumber: header.dealNumber, type: header.type }, transaction });
       if (!deal) {
         return res.status(404).json({ message: "Deal not found" });
       }
@@ -184,31 +184,74 @@ exports.updateDeal = async (req, res) => {
 };
 
 exports.getDeals = async (req, res) => {
-  const deals = await Deal.findAll({
-    order: [['dealNumber', 'ASC']],
-    include: [
-      {
-        model: Supplier,
-        include: [Price, Tonn] // Include prices associated with the supplier
-      },
-      {
-        model: Buyer,
-        include: [Tonn, Price]
-      },
-      {
-        model: Forwarder
-      },
-      {
-        model: CompanyGroup,
-        include: [Price]
-      }
-    ]
-  });
+  try {
+    const deals = await Deal.findAll({
+      order: [['dealNumber', 'ASC']],
+      include: [
+        {
+          model: Supplier,
+          include: [Price, Tonn]
+        },
+        {
+          model: Buyer,
+          include: [Tonn, Price]
+        },
+        {
+          model: Forwarder
+        },
+        {
+          model: CompanyGroup,
+          include: [Price]
+        }
+      ]
+    });
 
-  console.log(deals)
-  return res.json(deals);
+    // Transform deals to combine Prices and Tonns into Entries for Supplier and Buyer
+    const transformedDeals = deals.map((deal) => {
+      const supplier = deal.Supplier ? {
+        ...deal.Supplier.toJSON(),
+        Entries: mergeEntries(deal.Supplier.Prices, deal.Supplier.Tonns)
+      } : null;
+
+      const buyer = deal.Buyer ? {
+        ...deal.Buyer.toJSON(),
+        Entries: mergeEntries(deal.Buyer.Prices, deal.Buyer.Tonns)
+      } : null;
+
+      const companyGroup = deal.CompanyGroup ? {
+        ...deal.CompanyGroup.toJSON(),
+        Entries: mergeEntries(deal.CompanyGroup.Prices, []) // No Tonns in CompanyGroup
+      } : null;
+
+      return {
+        ...deal.toJSON(),
+        Supplier: supplier,
+        Buyer: buyer,
+        CompanyGroup: companyGroup
+      };
+    });
+
+    return res.json(transformedDeals);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Failed to retrieve deals' });
+  }
 };
 
+
+const mergeEntries = (prices = [], tonns = []) => {
+  const maxLength = Math.max(prices.length, tonns.length);
+  const entries = [];
+
+  for (let i = 0; i < maxLength; i++) {
+    entries.push({
+      ...prices[i]?.toJSON(),
+      ...tonns[i]?.toJSON()
+    });
+  }
+
+  return entries;
+};
 
 function createUniqueKey(priceData) {
   // Create a unique key based on a combination of attributes

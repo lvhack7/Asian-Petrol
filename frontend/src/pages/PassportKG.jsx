@@ -38,10 +38,13 @@ const columns = [
       title: 'Дата', // Date
       dataIndex: 'date',
       key: 'date',
-      render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
+      render: (text) => (text ? <Text>{new Date(text).toLocaleDateString("ru-RU", {
+        month: "2-digit",
+        year: "numeric"
+      }).replace(/\./g, "/")}</Text> : ''),
     },
     {
-      title: 'Фабрика', // Factory
+      title: 'Завод', // Factory
       dataIndex: 'factory',
       key: 'factory',
       render: (text) => text || '',
@@ -78,9 +81,10 @@ const columns = [
     },
     {
       title: 'Сумма по приложению', // Supplier Amount
-      dataIndex: ['Supplier', 'amount'],
-      key: 'supplierAmount',
-      render: (text) => formatNumber(text),
+      key: 'supplierAmount1',
+      render: (record) => {
+        return formatNumber(Number(record?.Supplier?.Prices[0]?.price) * Number(record?.Supplier?.volume))
+      } 
     },
     {
       title: 'Условия поставки', // Delivery Basis
@@ -94,12 +98,6 @@ const columns = [
       key: 'fixationCondition',
       render: (text) => text || '',
     },
-    // {
-    //   title: 'Дата загрузки', // Fill Date
-    //   dataIndex: ['Supplier', 'fillDate'],
-    //   key: 'fillDate',
-    //   render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
-    // },
     {
       title: 'Цены поставщика', // Parent column for Supplier Prices
       children: [
@@ -119,6 +117,27 @@ const columns = [
                           }}
                       >
                           {price.currency ?? 'Пусто'}
+                      </div>
+                  ))}
+              </>
+          ),
+        },
+        {
+          title: 'Коммент', // Column for Quotation
+          key: 'commentary',
+          render: (record) => (
+              <>
+                  {record.Supplier?.Prices.map((price, index) => (
+                      <div
+                          key={`commentary-${index}`}
+                          style={{
+                              width: '100%',
+                              borderBottom: '1px solid #e0e0e0',
+                              marginBottom: '4px',
+                              padding: '0',
+                          }}
+                      >
+                          {price.commentary ?? 'Пусто'}
                       </div>
                   ))}
               </>
@@ -181,32 +200,11 @@ const columns = [
                                 padding: '0',
                             }}
                         >
-                            {price.price ?? 'Пусто'}
+                            {price.price ? price.price : Number(price.quotation) - Number(price.discount)}
                         </div>
                     ))}
                 </>
             ),
-        },
-        {
-          title: 'Коммент', // Column for Quotation
-          key: 'commentary',
-          render: (record) => (
-              <>
-                  {record.Supplier?.Prices.map((price, index) => (
-                      <div
-                          key={`commentary-${index}`}
-                          style={{
-                              width: '100%',
-                              borderBottom: '1px solid #e0e0e0',
-                              marginBottom: '4px',
-                              padding: '0',
-                          }}
-                      >
-                          {price.commentary ?? 'Пусто'}
-                      </div>
-                  ))}
-              </>
-          ),
         },
       ],
     },
@@ -229,7 +227,7 @@ const columns = [
                       padding: '0', // Remove any padding within the div
                     }}
                   >
-                    {formatNumber(tonn.tonn)}
+                    {tonn.tonn}
                   </div>
                 ))
               ) : (
@@ -266,10 +264,31 @@ const columns = [
       ],
     },
     {
-      title: 'Сумма  отгрузки, (факт)', // Supplier Amount
-      key: 'supplierAmount1',
+      title: 'Сумма налива',
+      dataIndex: ['Supplier', 'amount'], // Supplier Amount
+      key: 'supplierAmount',
+      render: (text) => text || '',
+    },
+    {
+      title: 'Оплата поставщику',
+      dataIndex: ['Supplier', 'payment'], // Supplier Amount
+      key: 'supplierPayment',
+      render: (text) => text || '',
+    },
+    {
+      title: 'Дата оплаты',
+      dataIndex: ['Supplier', 'paymentDate'], // Supplier Amount
+      key: 'supplierPaymenDate',
+      render: (text) => (text ? <Text>{new Date(text).toLocaleDateString("ru-RU", {
+        month: "2-digit",
+        year: "numeric"
+      }).replace(/\./g, "/")}</Text> : ''),
+    },
+    {
+      title: 'ДТ/КТ',
+      key: 'supplierAmount2',
       render: (record) => {
-        return formatNumber(Number(record?.Supplier?.Prices[0]?.price) * Number(record?.Supplier?.volume))
+        return Number(record?.Supplier?.amount) - Number(record?.Supplier?.payment)
       } 
     },
     {
@@ -306,28 +325,28 @@ const columns = [
           ),
         },
         {
-            title: 'Котировка', // Column for Quotation
-            key: 'quotation',
-            render: (record) => (
-                <>
-                    {record.CompanyGroup?.Prices.map((price, index) => (
-                        <div
-                            key={`quotation-${index}`}
-                            style={{
-                                width: '100%',
-                                borderBottom: '1px solid #e0e0e0',
-                                marginBottom: '4px',
-                                padding: '0',
-                            }}
-                        >
-                            {price.quotation ?? 'Пусто'}
-                        </div>
-                    ))}
-                </>
-            ),
+          title: 'Коммент', // Column for Quotation
+          key: 'commentary',
+          render: (record) => (
+              <>
+                  {record.CompanyGroup?.Prices.map((price, index) => (
+                      <div
+                          key={`commentary-${index}`}
+                          style={{
+                              width: '100%',
+                              borderBottom: '1px solid #e0e0e0',
+                              marginBottom: '4px',
+                              padding: '0',
+                          }}
+                      >
+                          {price.commentary ?? 'Пусто'}
+                      </div>
+                  ))}
+              </>
+          ),
         },
         {
-          title: 'Скидка', // Column for Discount
+          title: '# Приложения/договор', // Column for Discount
           key: 'discount',
           render: (record) => (
               <>
@@ -368,27 +387,6 @@ const columns = [
                 </>
             ),
         },
-        {
-          title: 'Коммент', // Column for Quotation
-          key: 'commentary',
-          render: (record) => (
-              <>
-                  {record.CompanyGroup?.Prices.map((price, index) => (
-                      <div
-                          key={`commentary-${index}`}
-                          style={{
-                              width: '100%',
-                              borderBottom: '1px solid #e0e0e0',
-                              marginBottom: '4px',
-                              padding: '0',
-                          }}
-                      >
-                          {price.commentary ?? 'Пусто'}
-                      </div>
-                  ))}
-              </>
-          ),
-        },
       ],
     },
     {
@@ -419,12 +417,6 @@ const columns = [
       render: (text) => formatNumber(text),
     },
     {
-      title: 'Законтракт. на сумму', // Buyer Amount
-      dataIndex: ['Buyer', 'amount'],
-      key: 'buyerAmount',
-      render: (text) => formatNumber(text),
-    },
-    {
       title: 'Условия поставки', // Delivery Basis (Buyer)
       dataIndex: ['Buyer', 'deliveryBasis'],
       key: 'buyerDeliveryBasis',
@@ -443,16 +435,26 @@ const columns = [
       render: (text) => formatNumber(text),
     },
     {
-      title: 'Объем разгрузки', // Discharge Volume
-      dataIndex: ['Buyer', 'dischargeVolume'],
-      key: 'dischargeVolume',
-      render: (text) => formatNumber(text),
+      title: 'Оплата поставщику',
+      dataIndex: ['Supplier', 'payment'], // Supplier Amount
+      key: 'supplierPayment',
+      render: (text) => text || '',
     },
     {
-      title: 'Дата разгрузки', // Discharge Date
-      dataIndex: ['Buyer', 'dischargeDate'],
-      key: 'dischargeDate',
-      render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
+      title: 'Дата оплаты',
+      dataIndex: ['Supplier', 'paymentDate'], // Supplier Amount
+      key: 'supplierPaymenDate',
+      render: (text) => (text ? <Text>{new Date(text).toLocaleDateString("ru-RU", {
+        month: "2-digit",
+        year: "numeric"
+      }).replace(/\./g, "/")}</Text> : ''),
+    },
+    {
+      title: 'ДТ/КТ',
+      key: 'supplierAmount2',
+      render: (record) => {
+        return Number(record?.Buyer?.amount) - Number(record?.Buyer?.payment)
+      } 
     },
     {
       title: 'Цены покупателя', // Parent column for Supplier Prices
@@ -535,7 +537,7 @@ const columns = [
                                 padding: '0',
                             }}
                         >
-                            {price.price ?? 'Пусто'}
+                            {price.price ? price.price : Number(price.quotation) - Number(price.discount)}
                         </div>
                     ))}
                 </>
@@ -565,6 +567,25 @@ const columns = [
       ],
     },
     {
+      title: 'Обьем разгрузки', // Declared Volume
+      dataIndex: ['Buyer', 'unloadVolume'],
+      key: 'unloadVolume',
+      render: (text) => text || '',
+    },
+    {
+      title: 'Дата разгрузки', // Declared Volume
+      dataIndex: ['Buyer', 'unloadDate'],
+      key: 'unloadDate',
+      render: (text) => new Date(text).toLocaleDateString() || '',
+    },
+    {
+      title: 'Законтракт. на сумму', // Buyer Amount
+      key: 'buyerAmount',
+      render: (record) => {
+        return formatNumber(Number(record?.Buyer?.Prices[0]?.price) * Number(record?.Buyer?.volume))
+      } 
+    },
+    {
       title: 'Отгрузка покупателя', // Parent column for Buyer Shipment
       children: [
         {
@@ -575,7 +596,7 @@ const columns = [
               {record.Buyer && record.Buyer.Tonns && record.Buyer.Tonns.length > 0 ? (
                 record.Buyer.Tonns.map((tonn, index) => (
                   <div key={index}>
-                    {formatNumber(tonn.tonn)}
+                    {tonn.tonn}
                   </div>
                 ))
               ) : (

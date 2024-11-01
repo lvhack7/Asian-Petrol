@@ -10,6 +10,8 @@ const Supplier = sequelize.define('Supplier', {
   volume: { type: DataTypes.TEXT },
   amount: { type: DataTypes.TEXT },
   deliveryBasis: { type: DataTypes.TEXT },
+  paymentDate: { type: DataTypes.DATE },
+  payment: {type: DataTypes.FLOAT},
   fixationCondition: { type: DataTypes.TEXT },
   fillTon: { type: DataTypes.TEXT },
   fillDate: { type: DataTypes.DATE },
