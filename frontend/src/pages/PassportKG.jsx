@@ -252,7 +252,7 @@ const columns = [
                       padding: '0', // Remove any padding within the div
                     }}
                   >
-                    {new Date(tonn.date).toLocaleDateString()}
+                    {tonn.date ? new Date(tonn.date).toLocaleDateString() : ''}
                   </div>
                 ))
               ) : (
@@ -288,7 +288,7 @@ const columns = [
       title: 'ДТ/КТ',
       key: 'supplierAmount2',
       render: (record) => {
-        return Number(record?.Supplier?.amount) - Number(record?.Supplier?.payment)
+        return Number(record?.Supplier?.amount || 0) - Number(record?.Supplier?.payment || 0)
       } 
     },
     {
@@ -453,7 +453,7 @@ const columns = [
       title: 'ДТ/КТ',
       key: 'supplierAmount2',
       render: (record) => {
-        return Number(record?.Buyer?.amount) - Number(record?.Buyer?.payment)
+        return Number(record?.Buyer?.amount || 0) - Number(record?.Buyer?.payment || 0)
       } 
     },
     {
@@ -576,7 +576,10 @@ const columns = [
       title: 'Дата разгрузки', // Declared Volume
       dataIndex: ['Buyer', 'unloadDate'],
       key: 'unloadDate',
-      render: (text) => new Date(text).toLocaleDateString() || '',
+      render: (text) => (text ? <Text>{new Date(text).toLocaleDateString("ru-RU", {
+        month: "2-digit",
+        year: "numeric"
+      }).replace(/\./g, "/")}</Text> : ''),
     },
     {
       title: 'Законтракт. на сумму', // Buyer Amount
@@ -731,7 +734,10 @@ const columns = [
         title: 'Дата загрузки', // Fill Date
         dataIndex: ['Forwarder', 'fillDate'],
         key: 'forwarderFillDate',
-        render: (text) => (text ? <Text>{new Date(text).toLocaleDateString()}</Text> : ''),
+        render: (text) => (text ? <Text>{new Date(text).toLocaleDateString("ru-RU", {
+          month: "2-digit",
+          year: "numeric"
+        }).replace(/\./g, "/")}</Text> : ''),
     },
 ]
 
