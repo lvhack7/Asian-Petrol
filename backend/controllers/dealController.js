@@ -2,7 +2,10 @@ const { Deal, Supplier, Buyer, Forwarder, CompanyGroup, Price, Tonn } = require(
 const sequelize = require('../config/database');
 
 
-const toCommaSeparatedString = (arr) => arr.map(item => item.name).join(',');
+const toCommaSeparatedString = (arr) => {
+  if (!arr) return null;
+  return arr.map(item => item.name).join(',')
+};
 
 exports.createDeal = async (req, res) => {
   const data = req.body;
