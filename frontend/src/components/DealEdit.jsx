@@ -237,30 +237,22 @@ const BuyerForm = ({initialValues, onChange}) => {
     }
 
     useEffect(() => {
+        console.log("INIT: ", initialValues)
         if (initialValues) {
-            const { Prices = [], Tonns = [] } = initialValues;
-            
-            const validatedTonns = Tonns.map((item) => ({
+            const validatedEntries = initialValues?.Entries?.map((item) => ({
                 ...item,
                 date: item?.date ? dayjs.utc(item.date) : null, // Convert to dayjs if valid, otherwise set to null
             }));
 
-            // Merge Prices and Tonns based on index, assuming they have a one-to-one relationship
-            const combinedEntries = Prices.map((price, index) => ({
-                ...price,
-                ...validatedTonns[index],  // Merge corresponding validated Tonn fields if available
-            }));
-
-            const updatedValues = {
+            form.setFieldsValue({
                 ...initialValues,
-                unloadDate: initialValues?.unloadDate ? dayjs.utc(initialValues?.unloadDate) : null,
-                Entries: combinedEntries
-            }
-            form.setFieldsValue(updatedValues)
+                paymentDate: initialValues?.paymentDate ? dayjs.utc(initialValues.paymentDate) : null,
+                Entries: validatedEntries
+            })
         } else {
             form.resetFields()
         }
-    }, [])
+    }, [initialValues])
 
     return (
         <Form  

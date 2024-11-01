@@ -292,7 +292,7 @@ const columns = [
       } 
     },
     {
-      title: 'Группа компании', // First name column
+      title: 'Группа компании 1', // First name column
       key: 'companyGroupName1',
       dataIndex: ['CompanyGroup', 'names'],
       render: (text) => {
@@ -481,6 +481,27 @@ const columns = [
           ),
         },
         {
+          title: 'Коммент', // Column for Quotation
+          key: 'commentary',
+          render: (record) => (
+              <>
+                  {record.Buyer?.Prices.map((price, index) => (
+                      <div
+                          key={`commentary-${index}`}
+                          style={{
+                              width: '100%',
+                              borderBottom: '1px solid #e0e0e0',
+                              marginBottom: '4px',
+                              padding: '0',
+                          }}
+                      >
+                          {price.commentary ?? 'Пусто'}
+                      </div>
+                  ))}
+              </>
+          ),
+        },
+        {
             title: 'Котировка', // Column for Quotation
             key: 'quotation',
             render: (record) => (
@@ -542,27 +563,6 @@ const columns = [
                     ))}
                 </>
             ),
-        },
-        {
-          title: 'Коммент', // Column for Quotation
-          key: 'commentary',
-          render: (record) => (
-              <>
-                  {record.Buyer?.Prices.map((price, index) => (
-                      <div
-                          key={`commentary-${index}`}
-                          style={{
-                              width: '100%',
-                              borderBottom: '1px solid #e0e0e0',
-                              marginBottom: '4px',
-                              padding: '0',
-                          }}
-                      >
-                          {price.commentary ?? 'Пусто'}
-                      </div>
-                  ))}
-              </>
-          ),
         },
       ],
     },

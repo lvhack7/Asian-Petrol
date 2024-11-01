@@ -137,6 +137,25 @@ const DealsList = () => {
     // },
     { title: 'Завод', dataIndex: 'factory', key: 'factory' },
     { title: 'Вид ГСМ', dataIndex: 'fuelType', key: 'fuelType' },
+    { title: 'Поставщик', dataIndex: ['Supplier', 'name'], key: 'supplierName'},
+    {
+      title: 'Группа компании 1', // First name column
+      key: 'companyGroupName1',
+      dataIndex: ['CompanyGroup', 'names'],
+      render: (text) => {
+        const names = text ? text.split(',') : [];
+        return names[0] || ''; // Render the first name
+      },
+    },
+    {
+      title: 'Группа компании 2', // First name column
+      key: 'companyGroupName2',
+      dataIndex: ['CompanyGroup', 'names'],
+      render: (text) => {
+        const names = text ? text.split(',') : [];
+        return names[1] || ''; // Render the first name
+      },
+    },
     { title: 'Тоннаж Налива', key: 'fillTonns', 
       render: (record) => {
         // Helper function to clean and parse numbers
@@ -177,6 +196,7 @@ const DealsList = () => {
         );
       }
      },
+     {title: 'Покупатель', dataIndex: ['Buyer', 'name'], key: 'supplierName'},
     {
       title: 'Статус',
       key: 'status',
