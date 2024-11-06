@@ -417,43 +417,10 @@ const columns = [
     render: (text) => formatNumber(text),
   },
   {
-    title: 'Условия поставки', // Delivery Basis (Buyer)
-    dataIndex: ['Buyer', 'deliveryBasis'],
-    key: 'buyerDeliveryBasis',
-    render: (text) => text || '',
-  },
-  {
-    title: 'Условия фиксации', // Fixation Condition (Buyer)
-    dataIndex: ['Buyer', 'fixationCondition'],
-    key: 'buyerFixationCondition',
-    render: (text) => text || '',
-  },
-  {
-    title: 'Заявленный объем', // Declared Volume
-    dataIndex: ['Buyer', 'declared'],
-    key: 'declaredVolume',
-    render: (text) => formatNumber(text),
-  },
-  {
-    title: 'Оплата поставщику',
-    dataIndex: ['Supplier', 'payment'], // Supplier Amount
-    key: 'supplierPayment',
-    render: (text) => text || '',
-  },
-  {
-    title: 'Дата оплаты',
-    dataIndex: ['Supplier', 'paymentDate'], // Supplier Amount
-    key: 'supplierPaymenDate',
-    render: (text) => (text ? <Text>{new Date(text).toLocaleDateString("ru-RU", {
-      month: "2-digit",
-      year: "numeric"
-    }).replace(/\./g, "/")}</Text> : ''),
-  },
-  {
-    title: 'ДТ/КТ',
-    key: 'supplierAmount2',
+    title: 'Законтракт. на сумму', // Buyer Amount
+    key: 'buyerAmount',
     render: (record) => {
-      return Number(record?.Buyer?.amount || 0) - Number(record?.Buyer?.payment || 0)
+      return formatNumber(Number(record?.Buyer?.Prices[0]?.price) * Number(record?.Buyer?.volume))
     } 
   },
   {
@@ -567,6 +534,24 @@ const columns = [
     ],
   },
   {
+    title: 'Условия поставки', // Delivery Basis (Buyer)
+    dataIndex: ['Buyer', 'deliveryBasis'],
+    key: 'buyerDeliveryBasis',
+    render: (text) => text || '',
+  },
+  {
+    title: 'Условия фиксации', // Fixation Condition (Buyer)
+    dataIndex: ['Buyer', 'fixationCondition'],
+    key: 'buyerFixationCondition',
+    render: (text) => text || '',
+  },
+  {
+    title: 'Заявленный объем', // Declared Volume
+    dataIndex: ['Buyer', 'declared'],
+    key: 'declaredVolume',
+    render: (text) => formatNumber(text),
+  },
+  {
     title: 'Обьем разгрузки', // Declared Volume
     dataIndex: ['Buyer', 'unloadVolume'],
     key: 'unloadVolume',
@@ -580,13 +565,6 @@ const columns = [
       month: "2-digit",
       year: "numeric"
     }).replace(/\./g, "/")}</Text> : ''),
-  },
-  {
-    title: 'Законтракт. на сумму', // Buyer Amount
-    key: 'buyerAmount',
-    render: (record) => {
-      return formatNumber(Number(record?.Buyer?.Prices[0]?.price) * Number(record?.Buyer?.volume))
-    } 
   },
   {
     title: 'Отгрузка покупателя', // Parent column for Buyer Shipment
@@ -632,6 +610,28 @@ const columns = [
     key: 'supplierAmount2',
     render: (record) => {
       return formatNumber(Number(record?.Buyer?.Prices[0]?.price) * Number(record?.Buyer?.volume))
+    } 
+  },
+  {
+    title: 'Оплата поставщику',
+    dataIndex: ['Supplier', 'payment'], // Supplier Amount
+    key: 'supplierPayment',
+    render: (text) => text || '',
+  },
+  {
+    title: 'Дата оплаты',
+    dataIndex: ['Supplier', 'paymentDate'], // Supplier Amount
+    key: 'supplierPaymenDate',
+    render: (text) => (text ? <Text>{new Date(text).toLocaleDateString("ru-RU", {
+      month: "2-digit",
+      year: "numeric"
+    }).replace(/\./g, "/")}</Text> : ''),
+  },
+  {
+    title: 'ДТ/КТ',
+    key: 'supplierAmount2',
+    render: (record) => {
+      return Number(record?.Buyer?.amount || 0) - Number(record?.Buyer?.payment || 0)
     } 
   },
   {
