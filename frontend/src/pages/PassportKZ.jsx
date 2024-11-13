@@ -353,16 +353,16 @@ const columns = [
     render: (record) => {
         // Calculate total supplier amount
         const totalSupplierAmount = record.Supplier?.Prices?.reduce((total, price, index) => {
-            const tonn = record.Supplier.Tonns[index]?.tonn;
-            const priceValue = price.price || (Number(price.quotation) - Number(price.discount));
-            const amount = tonn ? priceValue * tonn : 0;
-            return total + amount;
+          const tonn = record.Supplier.Tonns?.[index]?.tonn || 0; // Handle undefined Tonn
+          const priceValue = price.price || (Number(price.quotation) - Number(price.discount)) || 0;
+          const amount = tonn * priceValue;
+          return total + amount;
         }, 0) || 0;
 
-        // Calculate total payments
-        const totalPayments = record.Supplier.Payments?.reduce((total, payment) => {
-            return total + (payment.payment || 0);
-        }, 0) || 0;
+        // Calculate total payments (Платежи), defaulting to 0 if Payments is null or empty
+        const totalPayments = (record.Supplier?.Payments?.length > 0)
+            ? record.Supplier?.Payments?.reduce((total, payment) => total + (payment.payment || 0), 0)
+            : 0;
 
         // Calculate final amount
         const finalAmount = totalSupplierAmount - totalPayments;
@@ -687,13 +687,12 @@ const columns = [
         ),
       },
     ],
-  },
+  },                                               
   {
-    title: 'Отгружено на сумму', // Supplier Amount
+    title: 'Отгружено на сумму',
+    dataIndex: ['Buyer', 'amount'], // Supplier Amount
     key: 'supplierAmount2',
-    render: (record) => {
-      return formatNumber(Number(record?.Buyer?.Prices[0]?.price) * Number(record?.Buyer?.volume))
-    } 
+    render: (text) => text || ''
   },
   {
     title: 'Оплата покупатель', // Parent column for Supplier Shipment
@@ -756,16 +755,16 @@ const columns = [
     render: (record) => {
         // Calculate total supplier amount
         const totalSupplierAmount = record.Buyer?.Prices?.reduce((total, price, index) => {
-            const tonn = record.Buyer.Tonns[index]?.tonn;
-            const priceValue = price.price || (Number(price.quotation) - Number(price.discount));
-            const amount = tonn ? priceValue * tonn : 0;
-            return total + amount;
+          const tonn = record.Buyer.Tonns?.[index]?.tonn || 0; // Handle undefined Tonn
+          const priceValue = price.price || (Number(price.quotation) - Number(price.discount)) || 0;
+          const amount = tonn * priceValue;
+          return total + amount;
         }, 0) || 0;
 
-        // Calculate total payments
-        const totalPayments = record.Buyer.Payments?.reduce((total, payment) => {
-            return total + (payment.payment || 0);
-        }, 0) || 0;
+        // Calculate total payments (Платежи), defaulting to 0 if Payments is null or empty
+        const totalPayments = (record.Buyer?.Payments?.length > 0)
+            ? record.Buyer?.Payments?.reduce((total, payment) => total + (payment.payment || 0), 0)
+            : 0;
 
         // Calculate final amount
         const finalAmount = totalSupplierAmount - totalPayments;
