@@ -45,10 +45,16 @@ const SupplierForm = ({initialValues, onChange}) => {
                 date: item?.date ? dayjs.utc(item.date) : null, // Convert to dayjs if valid, otherwise set to null
             }));
 
+            const validatedPayments = initialValues?.Payments?.map((item) => ({
+                ...item,
+                date: item?.date ? dayjs.utc(item.date) : null, // Convert to dayjs if valid, otherwise set to null
+            }));
+
             form.setFieldsValue({
                 ...initialValues,
                 paymentDate: initialValues?.paymentDate ? dayjs.utc(initialValues.paymentDate) : null,
-                Entries: validatedEntries
+                Entries: validatedEntries,
+                Payments: validatedPayments
             })
         } else {
             form.resetFields()
@@ -76,7 +82,7 @@ const SupplierForm = ({initialValues, onChange}) => {
         <Form.Item name="volume" label="Законтрактовано по приложению / договору (объем)" rules={[{ required: true }]}>
         <Input />
         </Form.Item>
-        <Form.Item name="amount" label="Сумма налива" rules={[{ required: true }]}>
+        <Form.Item name="amount" label="Сумма по приложению" rules={[{ required: true }]}>
             <Input type='number' />
         </Form.Item>
         <Form.Item name="deliveryBasis" label="Базис поставки/станция назначения" rules={[{ required: true }]}>
@@ -97,14 +103,54 @@ const SupplierForm = ({initialValues, onChange}) => {
                 ))}
             </Select>
         </Form.Item>
-        <Form.Item name="payment" label="Оплата поставщику" rules={[{ required: true }]}>
-            <Input type='number' />
-        </Form.Item>
-        <Form.Item name="paymentDate" label="Дата оплаты" rules={[{ required: true }]}>
-            <DatePicker
-                className='w-full'
-            />
-        </Form.Item>
+        <Form.List name="Payments">
+        {(fields, { add, remove }) => (
+            <>
+            {fields.map(({ key, name, fieldKey, ...restField }) => (
+                <div key={key} style={{ marginBottom: 16 }}>
+                <label className="mb-2 font-medium">Платежи</label>
+                <Space style={{ display: 'flex', flexWrap: 'wrap' }} align="baseline">
+                    {/* Payment for Supplier Field */}
+                    <Form.Item
+                    {...restField}
+                    name={[name, 'payment']}
+                    fieldKey={[fieldKey, 'payment']}
+                    label="Оплата поставщику"
+                    rules={[{ required: true, message: 'Введите сумму платежа' }]}
+                    >
+                    <Input type='number' placeholder="Платеж поставщику" />
+                    </Form.Item>
+
+                    {/* Date of Payment Field */}
+                    <Form.Item
+                    {...restField}
+                    name={[name, 'date']}
+                    fieldKey={[fieldKey, 'date']}
+                    label="Дата оплаты"
+                    rules={[{ required: true, message: 'Введите дату платежа' }]}
+                    >
+                    <DatePicker placeholder="Дата платежа" className="w-full" />
+                    </Form.Item>
+
+                    <Button type="danger" onClick={() => remove(name)}>
+                    Удалить
+                    </Button>
+                </Space>
+                </div>
+            ))}
+            <Form.Item>
+                <Button
+                type="dashed"
+                onClick={() => add()}
+                block
+                icon={<PlusOutlined />}
+                >
+                Добавить Платеж
+                </Button>
+            </Form.Item>
+            </>
+        )}
+        </Form.List>
         <Form.List
         name="Entries">
         {(fields, { add, remove }) => (
@@ -244,10 +290,16 @@ const BuyerForm = ({initialValues, onChange}) => {
                 date: item?.date ? dayjs.utc(item.date) : null, // Convert to dayjs if valid, otherwise set to null
             }));
 
+            const validatedPayments = initialValues?.Payments?.map((item) => ({
+                ...item,
+                date: item?.date ? dayjs.utc(item.date) : null, // Convert to dayjs if valid, otherwise set to null
+            }));
+
             form.setFieldsValue({
                 ...initialValues,
                 paymentDate: initialValues?.paymentDate ? dayjs.utc(initialValues.paymentDate) : null,
-                Entries: validatedEntries
+                Entries: validatedEntries,
+                Payments: validatedPayments
             })
         } else {
             form.resetFields()
@@ -296,14 +348,54 @@ const BuyerForm = ({initialValues, onChange}) => {
                 ))}
             </Select>
         </Form.Item>
-        <Form.Item name="payment" label="Оплата покупателю" rules={[{ required: true }]}>
-            <Input type='number' />
-        </Form.Item>
-        <Form.Item name="paymentDate" label="Дата оплаты" rules={[{ required: true }]}>
-            <DatePicker
-                className='w-full'
-            />
-        </Form.Item>
+        <Form.List name="Payments">
+        {(fields, { add, remove }) => (
+            <>
+            {fields.map(({ key, name, fieldKey, ...restField }) => (
+                <div key={key} style={{ marginBottom: 16 }}>
+                <label className="mb-2 font-medium">Платежи</label>
+                <Space style={{ display: 'flex', flexWrap: 'wrap' }} align="baseline">
+                    {/* Payment for Supplier Field */}
+                    <Form.Item
+                    {...restField}
+                    name={[name, 'payment']}
+                    fieldKey={[fieldKey, 'payment']}
+                    label="Оплата покупателю"
+                    rules={[{ required: true, message: 'Введите сумму платежа' }]}
+                    >
+                    <Input type='number' placeholder="Платеж покупателю" />
+                    </Form.Item>
+
+                    {/* Date of Payment Field */}
+                    <Form.Item
+                    {...restField}
+                    name={[name, 'date']}
+                    fieldKey={[fieldKey, 'date']}
+                    label="Дата оплаты"
+                    rules={[{ required: true, message: 'Введите дату платежа' }]}
+                    >
+                    <DatePicker placeholder="Дата платежа" className="w-full" />
+                    </Form.Item>
+
+                    <Button type="danger" onClick={() => remove(name)}>
+                    Удалить
+                    </Button>
+                </Space>
+                </div>
+            ))}
+            <Form.Item>
+                <Button
+                type="dashed"
+                onClick={() => add()}
+                block
+                icon={<PlusOutlined />}
+                >
+                Добавить Платеж
+                </Button>
+            </Form.Item>
+            </>
+        )}
+        </Form.List>
         <Form.Item name="declared" label="Заявленный обьем" rules={[{ required: true }]}>
         <Input />
         </Form.Item>

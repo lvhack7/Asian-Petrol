@@ -80,11 +80,10 @@ const columns = [
     render: (text) => text || '',
   },
   {
-    title: 'Сумма по приложению', // Supplier Amount
-    key: 'supplierAmount1',
-    render: (record) => {
-      return formatNumber(Number(record?.Supplier?.Prices[0]?.price) * Number(record?.Supplier?.volume))
-    } 
+    title: 'Сумма по приложению',
+    dataIndex: ['Supplier', 'amount'], // Supplier Amount
+    key: 'supplierAmount',
+    render: (text) => text || '',
   },
   {
     title: 'Условия поставки', // Delivery Basis
@@ -99,7 +98,7 @@ const columns = [
     render: (text) => text || '',
   },
   {
-    title: 'Цены поставщика', // Parent column for Supplier Prices
+    title: 'Цены продажи', // Parent column for Supplier Prices
     children: [
       {
         title: 'Валюта', // Column for Currency
@@ -264,32 +263,116 @@ const columns = [
     ],
   },
   {
-    title: 'Сумма налива',
-    dataIndex: ['Supplier', 'amount'], // Supplier Amount
-    key: 'supplierAmount',
-    render: (text) => text || '',
+    title: 'Сумма налива', // Supplier Amount
+    key: 'supplierAmount1',
+    render: (record) => (
+        <>
+            {record.Supplier && record.Supplier.Prices && record.Supplier.Tonns ? (
+                record.Supplier.Prices.map((price, index) => {
+                    // Ensure both price and corresponding tonn exist
+                    const tonn = record.Supplier.Tonns[index]?.tonn;
+                    const amount = tonn ? (price.price || (Number(price.quotation) - Number(price.discount))) * tonn : 'Пусто';
+                    return (
+                        <div
+                            key={`supplierAmount1-${index}`}
+                            style={{
+                                width: '100%',
+                                borderBottom: '1px solid #e0e0e0',
+                                marginBottom: '4px',
+                                padding: '0',
+                            }}
+                        >
+                            {amount ? amount.toFixed(2) : 'Пусто'}
+                        </div>
+                    );
+                })
+            ) : (
+                'Пусто'
+            )}
+        </>
+    ),
   },
   {
-    title: 'Оплата поставщику',
-    dataIndex: ['Supplier', 'payment'], // Supplier Amount
-    key: 'supplierPayment',
-    render: (text) => text || '',
+    title: 'Оплата поставщик', // Parent column for Supplier Shipment
+    children: [
+      {
+        title: 'Сумма', // Column for Tonn
+        key: 'paymentSupp',
+        render: (record) => (
+          <>
+            {record.Supplier && record.Supplier.Payments && record.Supplier.Payments.length > 0 ? (
+              record.Supplier.Payments.map((tonn, index) => (
+                <div
+                  key={index}
+                  style={{
+                    width: '100%', // Ensures the div spans the full width
+                    borderBottom: '1px solid #e0e0e0', // Full-width separator
+                    marginBottom: '4px',
+                    padding: '0', // Remove any padding within the div
+                  }}
+                >
+                  {tonn.payment}
+                </div>
+              ))
+            ) : (
+              ''
+            )}
+          </>
+        ),
+      },
+      {
+        title: 'Дата оплаты', // Column for Date
+        key: 'suppDate',
+        render: (record) => (
+          <>
+            {record.Supplier && record.Supplier.Payments && record.Supplier.Payments.length > 0 ? (
+              record.Supplier.Payments.map((tonn, index) => (
+                <div
+                  key={index}
+                  style={{
+                    width: '100%', // Ensures the div spans the full width
+                    borderBottom: '1px solid #e0e0e0', // Full-width separator
+                    marginBottom: '4px',
+                    padding: '0', // Remove any padding within the div
+                  }}
+                >
+                  {tonn.date ? new Date(tonn.date).toLocaleDateString() : ''}
+                </div>
+              ))
+            ) : (
+              ''
+            )}
+          </>
+        ),
+      },
+    ],
   },
   {
-    title: 'Дата оплаты',
-    dataIndex: ['Supplier', 'paymentDate'], // Supplier Amount
-    key: 'supplierPaymenDate',
-    render: (text) => (text ? <Text>{new Date(text).toLocaleDateString("ru-RU", {
-      month: "2-digit",
-      year: "numeric"
-    }).replace(/\./g, "/")}</Text> : ''),
-  },
-  {
-    title: 'ДТ/КТ',
-    key: 'supplierAmount2',
+    title: 'ДТ/КТ', // Final Amount
+    key: 'finalAmount',
     render: (record) => {
-      return Number(record?.Supplier?.amount || 0) - Number(record?.Supplier?.payment || 0)
-    } 
+        // Calculate total supplier amount
+        const totalSupplierAmount = record.Supplier?.Prices?.reduce((total, price, index) => {
+            const tonn = record.Supplier.Tonns[index]?.tonn;
+            const priceValue = price.price || (Number(price.quotation) - Number(price.discount));
+            const amount = tonn ? priceValue * tonn : 0;
+            return total + amount;
+        }, 0) || 0;
+
+        // Calculate total payments
+        const totalPayments = record.Supplier.Payments?.reduce((total, payment) => {
+            return total + (payment.payment || 0);
+        }, 0) || 0;
+
+        // Calculate final amount
+        const finalAmount = totalSupplierAmount - totalPayments;
+
+        return (
+            <div style={{ padding: '0' }}>
+                {finalAmount.toFixed(2)} {/* Display final amount with 2 decimal places */}
+            </div>
+        );
+    }
   },
   {
     title: 'Группа компании 1', // First name column
@@ -301,7 +384,7 @@ const columns = [
     },
   },
   {
-    title: 'Цены Группа Компаний', // Parent column for Supplier Prices
+    title: 'Цена', // Parent column for Supplier Prices
     children: [
       {
         title: 'Валюта', // Column for Currency
@@ -424,7 +507,19 @@ const columns = [
     } 
   },
   {
-    title: 'Цены покупателя', // Parent column for Supplier Prices
+    title: 'Условия поставки', // Delivery Basis (Buyer)
+    dataIndex: ['Buyer', 'deliveryBasis'],
+    key: 'buyerDeliveryBasis',
+    render: (text) => text || '',
+  },
+  {
+    title: 'Условия фиксации', // Fixation Condition (Buyer)
+    dataIndex: ['Buyer', 'fixationCondition'],
+    key: 'buyerFixationCondition',
+    render: (text) => text || '',
+  },
+  {
+    title: 'Цены покупки', // Parent column for Supplier Prices
     children: [
       {
         title: 'Валюта', // Column for Currency
@@ -534,18 +629,6 @@ const columns = [
     ],
   },
   {
-    title: 'Условия поставки', // Delivery Basis (Buyer)
-    dataIndex: ['Buyer', 'deliveryBasis'],
-    key: 'buyerDeliveryBasis',
-    render: (text) => text || '',
-  },
-  {
-    title: 'Условия фиксации', // Fixation Condition (Buyer)
-    dataIndex: ['Buyer', 'fixationCondition'],
-    key: 'buyerFixationCondition',
-    render: (text) => text || '',
-  },
-  {
     title: 'Заявленный объем', // Declared Volume
     dataIndex: ['Buyer', 'declared'],
     key: 'declaredVolume',
@@ -613,26 +696,86 @@ const columns = [
     } 
   },
   {
-    title: 'Оплата поставщику',
-    dataIndex: ['Supplier', 'payment'], // Supplier Amount
-    key: 'supplierPayment',
-    render: (text) => text || '',
+    title: 'Оплата покупатель', // Parent column for Supplier Shipment
+    children: [
+      {
+        title: 'Сумма', // Column for Tonn
+        key: 'paymentSupp',
+        render: (record) => (
+          <>
+            {record.Buyer && record.Buyer.Payments && record.Buyer.Payments.length > 0 ? (
+              record.Buyer.Payments.map((tonn, index) => (
+                <div
+                  key={index}
+                  style={{
+                    width: '100%', // Ensures the div spans the full width
+                    borderBottom: '1px solid #e0e0e0', // Full-width separator
+                    marginBottom: '4px',
+                    padding: '0', // Remove any padding within the div
+                  }}
+                >
+                  {tonn.payment}
+                </div>
+              ))
+            ) : (
+              ''
+            )}
+          </>
+        ),
+      },
+      {
+        title: 'Дата оплаты', // Column for Date
+        key: 'suppDate',
+        render: (record) => (
+          <>
+            {record.Buyer && record.Buyer.Payments && record.Buyer.Payments.length > 0 ? (
+              record.Buyer.Payments.map((tonn, index) => (
+                <div
+                  key={index}
+                  style={{
+                    width: '100%', // Ensures the div spans the full width
+                    borderBottom: '1px solid #e0e0e0', // Full-width separator
+                    marginBottom: '4px',
+                    padding: '0', // Remove any padding within the div
+                  }}
+                >
+                  {tonn.date ? new Date(tonn.date).toLocaleDateString() : ''}
+                </div>
+              ))
+            ) : (
+              ''
+            )}
+          </>
+        ),
+      },
+    ],
   },
   {
-    title: 'Дата оплаты',
-    dataIndex: ['Supplier', 'paymentDate'], // Supplier Amount
-    key: 'supplierPaymenDate',
-    render: (text) => (text ? <Text>{new Date(text).toLocaleDateString("ru-RU", {
-      month: "2-digit",
-      year: "numeric"
-    }).replace(/\./g, "/")}</Text> : ''),
-  },
-  {
-    title: 'ДТ/КТ',
-    key: 'supplierAmount2',
+    title: 'ДТ/КТ', // Final Amount
+    key: 'finalAmount1',
     render: (record) => {
-      return Number(record?.Buyer?.amount || 0) - Number(record?.Buyer?.payment || 0)
-    } 
+        // Calculate total supplier amount
+        const totalSupplierAmount = record.Buyer?.Prices?.reduce((total, price, index) => {
+            const tonn = record.Buyer.Tonns[index]?.tonn;
+            const priceValue = price.price || (Number(price.quotation) - Number(price.discount));
+            const amount = tonn ? priceValue * tonn : 0;
+            return total + amount;
+        }, 0) || 0;
+
+        // Calculate total payments
+        const totalPayments = record.Buyer.Payments?.reduce((total, payment) => {
+            return total + (payment.payment || 0);
+        }, 0) || 0;
+
+        // Calculate final amount
+        const finalAmount = totalSupplierAmount - totalPayments;
+
+        return (
+            <div style={{ padding: '0' }}>
+                {finalAmount.toFixed(2)} {/* Display final amount with 2 decimal places */}
+            </div>
+        );
+    }
   },
   {
     title: 'Экспедитор', // Forwarder Name

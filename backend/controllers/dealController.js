@@ -1,4 +1,4 @@
-const { Deal, Supplier, Buyer, Forwarder, CompanyGroup, Price, Tonn } = require('../models');
+const { Deal, Supplier, Buyer, Forwarder, CompanyGroup, Price, Tonn, Payment } = require('../models');
 const sequelize = require('../config/database');
 
 
@@ -193,11 +193,11 @@ exports.getDeals = async (req, res) => {
       include: [
         {
           model: Supplier,
-          include: [Price, Tonn]
+          include: [Price, Tonn, Payment]
         },
         {
           model: Buyer,
-          include: [Tonn, Price]
+          include: [Tonn, Price, Payment]
         },
         {
           model: Forwarder

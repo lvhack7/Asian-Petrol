@@ -7,7 +7,8 @@ const Forwarder = require('./forwarder');
 const CompanyGroup = require('./company');
 const Reference = require('./reference');
 const Price = require('./price');
-const Tonn = require('./tonn')
+const Tonn = require('./tonn');
+const Payment = require('./payment');
 
 // Define associations
 Deal.hasOne(Supplier, { foreignKey: 'dealId' });
@@ -27,7 +28,13 @@ Price.belongsTo(Buyer, {foreignKey: 'buyerId'})
 Buyer.hasMany(Tonn, {foreignKey: 'buyerId'})
 Tonn.belongsTo(Buyer, {foreignKey: 'buyerId'})
 
+Supplier.hasMany(Payment, {foreignKey: 'supplierId'})
+Payment.belongsTo(Supplier, {foreignKey: 'supplierId'})
+
+Buyer.hasMany(Payment, {foreignKey: 'buyerId'})
+Payment.belongsTo(Buyer, {foreignKey: 'buyerId'})
+
 CompanyGroup.hasMany(Price, {foreignKey: 'companyId'})
 Price.belongsTo(CompanyGroup, {foreignKey: 'companyId'})
 
-module.exports = { sequelize, User, Deal, Supplier, Buyer, Forwarder, CompanyGroup, Reference, Price, Tonn };
+module.exports = { sequelize, User, Deal, Supplier, Buyer, Forwarder, CompanyGroup, Reference, Price, Tonn, Payment };
