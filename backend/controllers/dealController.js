@@ -73,6 +73,7 @@ exports.updateDeal = async (req, res) => {
         // Clear old prices and tonns for supplier
         await Price.destroy({ where: { supplierId: supply.id }, transaction });
         await Tonn.destroy({ where: { supplierId: supply.id }, transaction });
+        await Payment.destroy({where: { supplierId: supply.id }, transaction})
 
         // Bulk insert new prices and tonns for supplier
         if (supplier.Prices && Array.isArray(supplier.Prices)) {
@@ -85,6 +86,13 @@ exports.updateDeal = async (req, res) => {
         if (supplier.Tonns && Array.isArray(supplier.Tonns)) {
           await Tonn.bulkCreate(
             supplier.Tonns.map(tonnData => ({ supplierId: supply.id, ...tonnData })),
+            { transaction }
+          );
+        }
+
+        if (supplier.Payments && Array.isArray(supplier.Payments)) {
+          await Payment.bulkCreate(
+            supplier.Payments.map(paymentData => ({ supplierId: supply.id, ...paymentData })),
             { transaction }
           );
         }
@@ -105,6 +113,7 @@ exports.updateDeal = async (req, res) => {
         // Clear old prices and tonns for buyer
         await Price.destroy({ where: { buyerId: buy.id }, transaction });
         await Tonn.destroy({ where: { buyerId: buy.id }, transaction });
+        await Payment.destroy({where: { buyerId: buy.id }, transaction})
 
         // Bulk insert new prices and tonns for buyer
         if (buyer.Prices && Array.isArray(buyer.Prices)) {
@@ -117,6 +126,13 @@ exports.updateDeal = async (req, res) => {
         if (buyer.Tonns && Array.isArray(buyer.Tonns)) {
           await Tonn.bulkCreate(
             buyer.Tonns.map(tonnData => ({ buyerId: buy.id, ...tonnData })),
+            { transaction }
+          );
+        }
+
+        if (buyer.Payments && Array.isArray(buyer.Payments)) {
+          await Payment.bulkCreate(
+            buyer.Payments.map(paymentData => ({ buyerId: buy.id, ...paymentData })),
             { transaction }
           );
         }
