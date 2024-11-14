@@ -138,24 +138,6 @@ const DealsList = () => {
     { title: 'Завод', dataIndex: 'factory', key: 'factory' },
     { title: 'Вид ГСМ', dataIndex: 'fuelType', key: 'fuelType' },
     { title: 'Поставщик', dataIndex: ['Supplier', 'name'], key: 'supplierName'},
-    {
-      title: 'Группа компании 1', // First name column
-      key: 'companyGroupName1',
-      dataIndex: ['CompanyGroup', 'names'],
-      render: (text) => {
-        const names = text ? text.split(',') : [];
-        return names[0] || ''; // Render the first name
-      },
-    },
-    {
-      title: 'Группа компании 2', // First name column
-      key: 'companyGroupName2',
-      dataIndex: ['CompanyGroup', 'names'],
-      render: (text) => {
-        const names = text ? text.split(',') : [];
-        return names[1] || ''; // Render the first name
-      },
-    },
     { title: 'Тоннаж Налива', key: 'fillTonns', 
       render: (record) => {
         // Helper function to clean and parse numbers
@@ -176,6 +158,86 @@ const DealsList = () => {
         );
       }
     },
+    {
+      title: 'Сумма налива', // Supplier Amount
+      key: 'supplierAmount1',
+      render: (record) => {
+          // Calculate total supplier amount (Сумма налива)
+          const totalSupplierAmount = record.Supplier?.Prices?.reduce((total, price, index) => {
+              const tonn = record.Supplier.Tonns?.[index]?.tonn;
+              const amount = tonn ? Number(price.price) * Number(tonn.replace(',', '.')) : 0;
+              return total + amount;
+          }, 0) || 0;
+  
+          return (
+              <div style={{ padding: '0' }}>
+                  {totalSupplierAmount.toFixed(2)} {/* Display final amount with 2 decimal places */}
+              </div>
+          );
+      }
+    },
+    {
+      title: 'Оплата поставщик', // Supplier Payment
+      key: 'paymentSuppTotal',
+      render: (record) => {
+          // Calculate total supplier payments
+          const totalPayment = record.Supplier?.Payments?.reduce((total, payment) => {
+              return total + (payment.payment || 0);
+          }, 0) || 0;
+  
+          return (
+              <div style={{ padding: '0' }}>
+                  {totalPayment.toFixed(2)} {/* Display total payment with 2 decimal places */}
+              </div>
+          );
+      }
+    },
+    {
+      title: 'ДТ/КТ', // Final Amount
+      key: 'finalAmount',
+      render: (record) => {
+          // Calculate total supplier amount
+          const totalSupplierAmount = record.Supplier?.Prices?.reduce((total, price, index) => {
+            const tonn = record.Supplier.Tonns?.[index]?.tonn || 0; // Handle undefined Tonn
+            const priceValue = price.price || (Number(price.quotation) - Number(price.discount)) || 0;
+            const amount = Number(tonn.replace(',', '.')) * priceValue;
+            return total + amount;
+          }, 0) || 0;
+  
+          // Calculate total payments (Платежи), defaulting to 0 if Payments is null or empty
+          const totalPayments = (record.Supplier?.Payments?.length > 0)
+              ? record.Supplier?.Payments?.reduce((total, payment) => total + (payment.payment || 0), 0)
+              : 0;
+  
+          // Calculate final amount
+          const finalAmount = totalSupplierAmount - totalPayments;
+  
+          return (
+              <div style={{ padding: '0' }}>
+                  {finalAmount.toFixed(2)} {/* Display final amount with 2 decimal places */}
+              </div>
+          );
+      }
+    },
+    {
+      title: 'Группа компании 1', // First name column
+      key: 'companyGroupName1',
+      dataIndex: ['CompanyGroup', 'names'],
+      render: (text) => {
+        const names = text ? text.split(',') : [];
+        return names[0] || ''; // Render the first name
+      },
+    },
+    {
+      title: 'Группа компании 2', // First name column
+      key: 'companyGroupName2',
+      dataIndex: ['CompanyGroup', 'names'],
+      render: (text) => {
+        const names = text ? text.split(',') : [];
+        return names[1] || ''; // Render the first name
+      },
+    },
+    {title: 'Покупатель', dataIndex: ['Buyer', 'name'], key: 'supplierName'},
     { title: 'Тоннаж Отгрузки', key: 'fillTonns1',
       render: (record) => {
         // Helper function to clean and parse numbers
@@ -196,41 +258,74 @@ const DealsList = () => {
         );
       }
      },
-     {title: 'Покупатель', dataIndex: ['Buyer', 'name'], key: 'supplierName'},
-    {
-      title: 'Статус',
-      key: 'status',
-      render: (text, record) => getStatus(record),
-      filters: [
-        { text: 'Налив', value: 'Налив' },
-        { text: 'В пути', value: 'В пути' },
-        { text: 'Новый', value: 'Новый' }
-      ],
-      onFilter: (value, record) => getStatus(record) === value
+     {
+      title: 'Отгружено на сумму', // Buyer Amount
+      key: 'buyerAmount1',
+      render: (record) => {
+          // Calculate total buyer amount (Сумма налива)
+          const totalBuyerAmount = record.Buyer?.Prices?.reduce((total, price, index) => {
+              const tonn = record.Buyer.Tonns?.[index]?.tonn;
+              const amount = tonn ? Number(price.price) * Number(tonn.replace(',', '.')) : 0;
+              return total + amount;
+          }, 0) || 0;
+  
+          return (
+              <div style={{ padding: '0' }}>
+                  {totalBuyerAmount.toFixed(2)} {/* Display final amount with 2 decimal places */}
+              </div>
+          );
+      }
     },
     {
-      title: 'Действия',
-      key: 'actions',
-      render: (record) => (
-        <div className='flex items-center space-x-1'>
-          <Button
-          type="link"
-          onClick={() => {
-            setEditRecord(record);
-            setEditModal(true);
-          }}
-        >
-          Редактировать
-        </Button>
-        <Button
-          type="link"
-          onClick={() => deleteDeal(record.id)}
-        >
-          Удалить
-        </Button>
-        </div>
-      ),
+      title: 'Оплата поставщик', // Supplier Payment
+      key: 'paymentSuppTotal1',
+      render: (record) => {
+          // Calculate total supplier payments
+          const totalPayment = record.Buyer?.Payments?.reduce((total, payment) => {
+              return total + (payment.payment || 0);
+          }, 0) || 0;
+  
+          return (
+              <div style={{ padding: '0' }}>
+                  {totalPayment.toFixed(2)} {/* Display total payment with 2 decimal places */}
+              </div>
+          );
+      }
     },
+    // {
+    //   title: 'Статус',
+    //   key: 'status',
+    //   render: (text, record) => getStatus(record),
+    //   filters: [
+    //     { text: 'Налив', value: 'Налив' },
+    //     { text: 'В пути', value: 'В пути' },
+    //     { text: 'Новый', value: 'Новый' }
+    //   ],
+    //   onFilter: (value, record) => getStatus(record) === value
+    // },
+    // {
+    //   title: 'Действия',
+    //   key: 'actions',
+    //   render: (record) => (
+    //     <div className='flex items-center space-x-1'>
+    //       <Button
+    //       type="link"
+    //       onClick={() => {
+    //         setEditRecord(record);
+    //         setEditModal(true);
+    //       }}
+    //     >
+    //       Редактировать
+    //     </Button>
+    //     <Button
+    //       type="link"
+    //       onClick={() => deleteDeal(record.id)}
+    //     >
+    //       Удалить
+    //     </Button>
+    //     </div>
+    //   ),
+    // },
   ];
 
   return (
