@@ -266,16 +266,25 @@ const columns = [
     title: 'Сумма налива', // Supplier Amount
     key: 'supplierAmount1',
     render: (record) => {
-        // Calculate total supplier amount (Сумма налива)
-        const totalSupplierAmount = record.Supplier?.Prices?.reduce((total, price, index) => {
-            const tonn = record.Supplier.Tonns?.[index]?.tonn;
-            const amount = tonn ? Number(price.price) * Number(tonn.replace(',', '.')) : 0;
-            return total + amount;
-        }, 0) || 0;
-
         return (
             <div style={{ padding: '0' }}>
-                {totalSupplierAmount.toFixed(2)} {/* Display final amount with 2 decimal places */}
+                {record.Supplier?.Prices?.map((price, index) => {
+                    const tonn = record.Supplier?.Tonns[index]?.tonn;
+                    const amount = tonn ? Number(price.price) * Number(tonn.replace(',', '.')) : 0;
+
+                    return (
+                        <div
+                            key={`supplierAmount-${index}`}
+                            style={{
+                                borderBottom: index !== record.Supplier.Prices.length - 1 ? '1px solid #e0e0e0' : 'none', // Add separator between items
+                                marginBottom: '4px',
+                                padding: '0',
+                            }}
+                        >
+                            {amount.toFixed(2)} {/* Display individual amount with 2 decimal places */}
+                        </div>
+                    );
+                })}
             </div>
         );
     }
@@ -678,22 +687,31 @@ const columns = [
   },  
   {
     title: 'Отгружено на сумму', // Buyer Amount
-    key: 'buyerAmount1',
+    key: 'buyerAmount6',
     render: (record) => {
-        // Calculate total buyer amount (Сумма налива)
-        const totalBuyerAmount = record.Buyer?.Prices?.reduce((total, price, index) => {
-            const tonn = record.Buyer.Tonns?.[index]?.tonn;
-            const amount = tonn ? Number(price.price) * Number(tonn.replace(',', '.')) : 0;
-            return total + amount;
-        }, 0) || 0;
-
         return (
             <div style={{ padding: '0' }}>
-                {totalBuyerAmount.toFixed(2)} {/* Display final amount with 2 decimal places */}
+                {record.Buyer?.Prices?.map((price, index) => {
+                    const tonn = record.Buyer.Tonns[index]?.tonn;
+                    const amount = tonn ? Number(price.price) * Number(tonn.replace(',', '.')) : 0;
+
+                    return (
+                        <div
+                            key={`buyerAmount-${index}`}
+                            style={{
+                                borderBottom: index !== record.Buyer.Prices.length - 1 ? '1px solid #e0e0e0' : 'none', // Add separator between items
+                                marginBottom: '4px',
+                                padding: '0',
+                            }}
+                        >
+                            {amount.toFixed(2)} {/* Display individual amount with 2 decimal places */}
+                        </div>
+                    );
+                })}
             </div>
         );
     }
-  },                                             
+  },                                           
   {
     title: 'Оплата покупатель', // Parent column for Supplier Shipment
     children: [
@@ -751,7 +769,7 @@ const columns = [
   },
   {
     title: 'ДТ/КТ', // Final Amount
-    key: 'finalAmount1',
+    key: 'finalAmount5',
     render: (record) => {
         // Calculate total supplier amount
         const totalSupplierAmount = record.Buyer?.Prices?.reduce((total, price, index) => {
