@@ -292,6 +292,33 @@ const DealsList = () => {
           );
       }
     },
+    {
+      title: 'ДТ/КТ', // Final Amount
+      key: 'finalAmount5',
+      render: (record) => {
+          // Calculate total supplier amount
+          const totalSupplierAmount = record.Buyer?.Prices?.reduce((total, price, index) => {
+            const tonn = record.Buyer.Tonns?.[index]?.tonn || 0; // Handle undefined Tonn
+            const priceValue = price.price || (Number(price.quotation) - Number(price.discount)) || 0;
+            const amount = Number(tonn.replace(',', '.')) * priceValue;
+            return total + amount;
+          }, 0) || 0;
+  
+          // Calculate total payments (Платежи), defaulting to 0 if Payments is null or empty
+          const totalPayments = (record.Buyer?.Payments?.length > 0)
+              ? record.Buyer?.Payments?.reduce((total, payment) => total + (payment.payment || 0), 0)
+              : 0;
+  
+          // Calculate final amount
+          const finalAmount = totalSupplierAmount - totalPayments;
+  
+          return (
+              <div style={{ padding: '0' }}>
+                  {finalAmount.toFixed(2)} {/* Display final amount with 2 decimal places */}
+              </div>
+          );
+      }
+    },
     // {
     //   title: 'Статус',
     //   key: 'status',

@@ -751,7 +751,7 @@ const columns = [
   },
   {
     title: 'ДТ/КТ', // Final Amount
-    key: 'finalAmount1',
+    key: 'finalAmount5',
     render: (record) => {
         // Calculate total supplier amount
         const totalSupplierAmount = record.Buyer?.Prices?.reduce((total, price, index) => {
