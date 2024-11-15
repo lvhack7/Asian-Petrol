@@ -330,29 +330,29 @@ const DealsList = () => {
     //   ],
     //   onFilter: (value, record) => getStatus(record) === value
     // },
-    // {
-    //   title: 'Действия',
-    //   key: 'actions',
-    //   render: (record) => (
-    //     <div className='flex items-center space-x-1'>
-    //       <Button
-    //       type="link"
-    //       onClick={() => {
-    //         setEditRecord(record);
-    //         setEditModal(true);
-    //       }}
-    //     >
-    //       Редактировать
-    //     </Button>
-    //     <Button
-    //       type="link"
-    //       onClick={() => deleteDeal(record.id)}
-    //     >
-    //       Удалить
-    //     </Button>
-    //     </div>
-    //   ),
-    // },
+    {
+      title: 'Действия',
+      key: 'actions',
+      render: (record) => (
+        <div className='flex items-center space-x-1'>
+          <Button
+          type="link"
+          onClick={() => {
+            setEditRecord(record);
+            setEditModal(true);
+          }}
+        >
+          Редактировать
+        </Button>
+        <Button
+          type="link"
+          onClick={() => deleteDeal(record.id)}
+        >
+          Удалить
+        </Button>
+        </div>
+      ),
+    },
   ];
 
   return (
