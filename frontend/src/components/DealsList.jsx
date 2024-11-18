@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, notification } from 'antd';
+import { Table, Button, notification, DatePicker } from 'antd';
 import dealService from '../services/dealService';
 import refService from '../services/refService';
 import DealCreate from './DealForm';
 import DealEdit from './DealEdit';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ru';
+import isBetween from 'dayjs/plugin/isBetween';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
 
+dayjs.extend(isBetween);
+dayjs.extend(advancedFormat);
+dayjs.locale('ru');
+
+const { RangePicker } = DatePicker;
 
 const getStatus = (record) => {
   if (record.Supplier) {
@@ -17,13 +26,10 @@ const getStatus = (record) => {
   return "Новый";
 };
 
-const formatDate = (isoString) => {
-  const date = new Date(isoString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${month}/${year}`;
+const formatDate = (dateString) => {
+  return dayjs(dateString).format('YYYY/MM');
 };
+
 
 const DealsList = () => {
   const [deals, setDeals] = useState(null);
@@ -32,6 +38,7 @@ const DealsList = () => {
   const [editRecord, setEditRecord] = useState(null);
   const [loading, setLoading] = useState(false)
   const [mapping, setMapping] = useState({})
+
 
   useEffect(() => {
     fetchColors();
@@ -131,10 +138,65 @@ const DealsList = () => {
     { title: '# Сделки', dataIndex: 'dealNumber', key: 'dealNumber',
       sorter: (a, b) => Number(a.dealNumber) - Number(b.dealNumber)
     },
-    // { title: 'Дата', dataIndex: 'date', key: 'date', 
-    //   render: (text) => formatDate(text), 
-    //   sorter: (a, b) => new Date(a.date) - new Date(b.date) 
-    // },
+    {
+      title: 'Дата', // Date
+      dataIndex: 'date',
+      key: 'date',
+      render: (text) => dayjs(text).format('YYYY/MM'), // Format to "YYYY/MM"
+      sorter: (a, b) => dayjs(a.date).diff(dayjs(b.date)), // Sort by date
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <RangePicker
+            picker="month" // Month picker
+            onChange={(dates, dateStrings) => {
+              setSelectedKeys(dateStrings && dateStrings.length === 2 ? [dateStrings] : []); // Set selected range
+            }}
+            value={
+              selectedKeys[0]
+                ? [dayjs(selectedKeys[0][0], 'YYYY-MM'), dayjs(selectedKeys[0][1], 'YYYY-MM')]
+                : null
+            } // Bind selected values to RangePicker
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <div style={{ textAlign: 'right' }}>
+            <button
+              type="button"
+              onClick={() => confirm()}
+              style={{
+                marginRight: 8,
+                padding: '4px 8px',
+                background: '#1890ff',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 4,
+              }}
+            >
+              Применить
+            </button>
+            <button
+              type="button"
+              onClick={clearFilters}
+              style={{
+                padding: '4px 8px',
+                background: '#f5222d',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 4,
+              }}
+            >
+              Сбросить
+            </button>
+          </div>
+        </div>
+      ),
+      onFilter: (value, record) => {
+        if (!value || value.length !== 2) return true; // Skip filtering if range is not selected
+        const recordDate = dayjs(record.date, 'YYYY/MM');
+        const startDate = dayjs(value[0], 'YYYY/MM');
+        const endDate = dayjs(value[1], 'YYYY/MM');
+        return recordDate.isBetween(startDate, endDate, 'month', '[]'); // Check if within range
+      },
+    },
     { title: 'Завод', dataIndex: 'factory', key: 'factory' },
     { title: 'Вид ГСМ', dataIndex: 'fuelType', key: 'fuelType' },
     { title: 'Поставщик', dataIndex: ['Supplier', 'name'], key: 'supplierName'},
