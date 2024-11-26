@@ -116,7 +116,7 @@ const DealsList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }; 
 
   const deleteDeal = async (id) => {
     try {
@@ -262,7 +262,7 @@ const DealsList = () => {
           const totalSupplierAmount = record.Supplier?.Prices?.reduce((total, price, index) => {
             const tonn = record.Supplier.Tonns?.[index]?.tonn || 0; // Handle undefined Tonn
             const priceValue = price.price || (Number(price.quotation) - Number(price.discount)) || 0;
-            const amount = Number(tonn.replace(',', '.')) * priceValue;
+            const amount = tonn ? Number(tonn.replace(',', '.')) * priceValue : 0;
             return total + amount;
           }, 0) || 0;
   
@@ -362,7 +362,7 @@ const DealsList = () => {
           const totalSupplierAmount = record.Buyer?.Prices?.reduce((total, price, index) => {
             const tonn = record.Buyer.Tonns?.[index]?.tonn || 0; // Handle undefined Tonn
             const priceValue = price.price || (Number(price.quotation) - Number(price.discount)) || 0;
-            const amount = Number(tonn.replace(',', '.')) * priceValue;
+            const amount = tonn ? Number(tonn.replace(',', '.')) * priceValue : 0;
             return total + amount;
           }, 0) || 0;
   
