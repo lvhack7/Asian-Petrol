@@ -825,22 +825,61 @@ const columns = [
     render: (text) => text || '',
   },
   {
-    title: 'Фактически отгруженный объем, МТ', // Actual Shipped Volume MT
-    dataIndex: ['Forwarder', 'actualShippedVolumeMT'],
-    key: 'actualShippedVolumeMT',
-    render: (text) => formatNumber(text),
+    title: 'Фактически отгруженный объем, МТ',
+    children: [
+      {
+        title: 'Дата',
+        dataIndex: ['Forwarder', 'actualShippedVolumeMTDate'],
+        key: 'actualShippedVolumeMTDate',
+        render: (text) => (text ? <Text>{new Date(text).toLocaleDateString("ru-RU", {
+          month: "2-digit",
+          year: "numeric"
+        }).replace(/\./g, "/")}</Text> : ''),
+      },
+      {
+        title: 'Значение',
+        dataIndex: ['Forwarder', 'actualShippedVolumeMT'],
+        key: 'actualShippedVolumeMT',
+      },
+    ],
   },
   {
-    title: 'Факт. объем по счету-фактуре, МТ', // Actual Volume Invoice MT
-    dataIndex: ['Forwarder', 'actualVolumeInvoiceMT'],
-    key: 'actualVolumeInvoiceMT',
-    render: (text) => formatNumber(text),
+    title: 'Факт. объем по счету-фактуре, МТ',
+    children: [
+      {
+        title: 'Дата',
+        dataIndex: ['Forwarder', 'actualVolumeInvoiceMTDate'],
+        key: 'actualVolumeInvoiceMTDate',
+        render: (text) => (text ? <Text>{new Date(text).toLocaleDateString("ru-RU", {
+          month: "2-digit",
+          year: "numeric"
+        }).replace(/\./g, "/")}</Text> : ''),
+      },
+      {
+        title: 'Значение',
+        dataIndex: ['Forwarder', 'actualVolumeInvoiceMT'],
+        key: 'actualVolumeInvoiceMT',
+      },
+    ],
   },
   {
-    title: 'Сумма по счету-фактуре на фактич. объем', // Invoice Amount Actual Volume
-    dataIndex: ['Forwarder', 'invoiceAmountActualVolume'],
-    key: 'invoiceAmountActualVolume',
-    render: (text) => formatNumber(text),
+    title: 'Сумма по счету-фактуре на фактич. объем',
+    children: [
+      {
+        title: 'Дата',
+        dataIndex: ['Forwarder', 'invoiceAmountActualVolumeDate'],
+        key: 'invoiceAmountActualVolumeDate',
+        render: (text) => (text ? <Text>{new Date(text).toLocaleDateString("ru-RU", {
+          month: "2-digit",
+          year: "numeric"
+        }).replace(/\./g, "/")}</Text> : ''),
+      },
+      {
+        title: 'Значение',
+        dataIndex: ['Forwarder', 'invoiceAmountActualVolume'],
+        key: 'invoiceAmountActualVolume',
+      },
+    ],
   },
   {
     title: 'Охрана', // Security
@@ -938,8 +977,11 @@ const KGPassport = () => {
     setLoading(true);
     try {
       const { data } = await dealService.getDeals();
-      setDeals(data.map((record, index) => ({...record, dealNumber: index+1})))
-        .filter((deal) => deal.type === 'KG');
+      setDeals(
+        data
+          .map((record, index) => ({ ...record, dealNumber: index + 1 }))
+          .filter((deal) => deal.type === 'KG')
+      );
     } catch (error) {
       localStorage.removeItem('token');
       notification.error({ message: 'Не удалось получить сделки!' });
