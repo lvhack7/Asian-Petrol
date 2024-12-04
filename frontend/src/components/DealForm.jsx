@@ -46,9 +46,10 @@ const DealCreate = ({ visible, onCreate, onCancel }) => {
       }}
     >
       <Form form={form} layout="vertical">
-        <Form.Item name="dealNumber" label="# Сделки" rules={[{ required: true }]}>
+        <Form.Item label="# Сделки" rules={[{ required: true }]}>
           <Input 
             type='number'
+            disabled
             addonBefore={
               <Form.Item name="type" noStyle>
                 <Select style={{ width: 70 }}>

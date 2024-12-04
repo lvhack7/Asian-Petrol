@@ -86,7 +86,7 @@ const columns = [
     render: (text) => text || '',
   },
   {
-    title: 'Условия поставки', // Delivery Basis
+    title: 'Базис поставки', // Delivery Basis
     dataIndex: ['Supplier', 'deliveryBasis'],
     key: 'deliveryBasis',
     render: (text) => text || '',
@@ -504,9 +504,15 @@ const columns = [
     } 
   },
   {
-    title: 'Условия поставки', // Delivery Basis (Buyer)
+    title: 'Базис поставки', // Delivery Basis
     dataIndex: ['Buyer', 'deliveryBasis'],
-    key: 'buyerDeliveryBasis',
+    key: 'deliveryBasis',
+    render: (text) => text || '',
+  },
+  {
+    title: 'Станция назначения', // Delivery Basis
+    dataIndex: ['Buyer', 'destinationStation'],
+    key: 'destinationStation',
     render: (text) => text || '',
   },
   {
@@ -813,18 +819,6 @@ const columns = [
     render: (text) => text || '',
   },
   {
-    title: 'Кол-во груза предварит. MT', // Cargo Amount MT
-    dataIndex: ['Forwarder', 'cargoAmountMT'],
-    key: 'cargoAmountMT',
-    render: (text) => text || '',
-  },
-  {
-    title: 'Сумма начисленная предварит.', // Accrued Amount
-    dataIndex: ['Forwarder', 'accruedAmount'],
-    key: 'accruedAmount',
-    render: (text) => formatNumber(text),
-  },
-  {
     title: 'ж/д тариф факт', // Actual Railway Tariff
     dataIndex: ['Forwarder', 'actualRailwayTariff'],
     key: 'actualRailwayTariff',
@@ -944,7 +938,8 @@ const KGPassport = () => {
     setLoading(true);
     try {
       const { data } = await dealService.getDeals();
-      setDeals(data.filter((deal) => deal.type === 'KG'));
+      setDeals(data.map((record, index) => ({...record, dealNumber: index+1})))
+        .filter((deal) => deal.type === 'KG');
     } catch (error) {
       localStorage.removeItem('token');
       notification.error({ message: 'Не удалось получить сделки!' });

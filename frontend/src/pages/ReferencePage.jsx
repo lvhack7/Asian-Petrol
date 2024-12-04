@@ -36,6 +36,10 @@ const references = [
     field: "currency",
     title: "Валюта"
   },
+  {
+    field: "stations",
+    title: "Станция назначения"
+  },
 ]
 
 export const ReferencePage = () => {

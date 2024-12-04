@@ -261,6 +261,7 @@ const BuyerForm = ({initialValues, onChange}) => {
     const [currencies, setCurr] = useState([])
     const [deliveryBas, setDel] = useState([])
     const [fixation, setFix] = useState([])
+    const [stations, setStations] = useState([])
 
     useEffect(() => {
         fetchSuppliers()
@@ -272,11 +273,13 @@ const BuyerForm = ({initialValues, onChange}) => {
             const fetchCurr = await refService.getRef("currency")
             const fetchFix = await refService.getRef("fixationCondition")
             const fetchDel = await refService.getRef("deliveryBasis")
+            const fetchStations = await refService.getRef("stations")
 
             setSupplier(fetchSupp.data)
             setCurr(fetchCurr.data)
             setFix(fetchFix.data)
             setDel(fetchDel.data)
+            setStations(fetchStations.data)
         } catch(e) {
             console.log(e)
         }
@@ -330,12 +333,30 @@ const BuyerForm = ({initialValues, onChange}) => {
         <Form.Item name="amount" label="Отгружено на сумму" rules={[{ required: true }]}>
         <Input />
         </Form.Item>
-        <Form.Item name="deliveryBasis" label="Базис поставки/станция назначения" rules={[{ required: true }]}>
-        <Select placeholder="Выберите Базис поставки">
+        <Form.Item
+            name="deliveryBasis"
+            label="Базис поставки"
+            rules={[{ required: true, message: 'Пожалуйста, выберите Базис поставки' }]}
+        >
+            <Select placeholder="Выберите Базис поставки">
                 {deliveryBas.map(factory => (
-                    <Select.Option key={factory.id} value={factory.name}>
-                        {factory.name}
-                    </Select.Option>
+                <Select.Option key={factory.id} value={factory.name}>
+                    {factory.name}
+                </Select.Option>
+                ))}
+            </Select>
+        </Form.Item>
+
+        <Form.Item
+            name="destinationStation"
+            label="Станция назначения"
+            rules={[{ required: true, message: 'Пожалуйста, выберите Станцию назначения' }]}
+            >
+            <Select placeholder="Выберите Станцию назначения">
+                {stations.map(station => (
+                <Select.Option key={station.id} value={station.name}>
+                    {station.name}
+                </Select.Option>
                 ))}
             </Select>
         </Form.Item>
@@ -537,24 +558,71 @@ const ForwarderForm = ({initialValues, onChange}) => {
                 <Form.Item name="plannedRailwayTariff" label="Ж/Д тариф план" rules={[{ required: true }]}>
                 <Input />
                 </Form.Item>
-                <Form.Item name="cargoAmountMT" label="Кол-во груза, МТ" rules={[{ required: true }]}>
-                <Input />
-                </Form.Item>
-                <Form.Item name="accruedAmount" label="Сумма начисленная" rules={[{ required: true }]}>
-                <Input />
-                </Form.Item>
                 <Form.Item name="actualRailwayTariff" label="Ж/Д тариф факт" rules={[{ required: true }]}>
                 <Input />
                 </Form.Item>
-                <Form.Item name="actualShippedVolumeMT" label="Фактически отгруженный объем, МТ" rules={[{ required: true }]}>
-                <Input />
-                </Form.Item>
-                <Form.Item name="actualVolumeInvoiceMT" label="Факт. объем по счету-фактуре, МТ" rules={[{ required: true }]}>
-                <Input />
-                </Form.Item>
-                <Form.Item name="invoiceAmountActualVolume" label="Сумма по счету-фактуре на фактич. объем" rules={[{ required: true }]}>
-                <Input />
-                </Form.Item>
+                <Row gutter={[16, 16]} align="bottom">
+                    <Col span={12}>
+                    <Form.Item
+                        name="actualShippedVolumeMT"
+                        label="Фактически отгруженный объем, МТ"
+                        rules={[{ required: true }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                    <Form.Item
+                        name="actualShippedVolumeMTDate"
+                        label="Дата"
+                        rules={[{ required: true }]}
+                    >
+                        <DatePicker style={{ width: '100%' }} />
+                    </Form.Item>
+                    </Col>
+                </Row>
+                
+                <Row gutter={[16, 16]} align="bottom">
+                    <Col span={12}>
+                    <Form.Item
+                        name="actualVolumeInvoiceMT"
+                        label="Факт. объем по счету-фактуре, МТ"
+                        rules={[{ required: true }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                    <Form.Item
+                        name="actualVolumeInvoiceMTDate"
+                        label="Дата"
+                        rules={[{ required: true }]}
+                    >
+                        <DatePicker style={{ width: '100%' }} />
+                    </Form.Item>
+                    </Col>
+                </Row>
+                
+                <Row gutter={[16, 16]} align="bottom">
+                    <Col span={12}>
+                    <Form.Item
+                        name="invoiceAmountActualVolume"
+                        label="Сумма по счету-фактуре на фактич. объем"
+                        rules={[{ required: true }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                    <Form.Item
+                        name="invoiceAmountActualVolumeDate"
+                        label="Дата"
+                        rules={[{ required: true }]}
+                    >
+                        <DatePicker style={{ width: '100%' }} />
+                    </Form.Item>
+                    </Col>
+                </Row>
                 <Form.Item name="security" label="Охрана" rules={[{ required: true }]}>
                 <Input />
                 </Form.Item>
@@ -871,7 +939,7 @@ const DealEdit = ({ visible, onCreate, onCancel, initialValues }) => {
                     Tonns: combinedEntriesBuy.Tonns
                 }
 
-                const obj = {header: {...values, type: form.getFieldValue('type'), date: dayjs(values.date).startOf('month').toISOString()}, supplier: tempSupplier, buyer: tempBuyer, forwarder, company}
+                const obj = {header: {...values, id: initialValues.id, type: form.getFieldValue('type'), date: dayjs(values.date).startOf('month').toISOString()}, supplier: tempSupplier, buyer: tempBuyer, forwarder, company}
                 console.log(obj)
                 onCreate(obj);
             })

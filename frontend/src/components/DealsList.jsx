@@ -92,7 +92,7 @@ const DealsList = () => {
     try {
       const { data } = await dealService.getDeals();
       console.log("DATA: ", data)
-      setDeals(data);
+      setDeals(data.map((record, index) => ({...record, dealNumber: index+1})));
     } catch (error) {
       localStorage.removeItem('token');
       notification.error({ message: 'Не удалось получить сделки!' });
@@ -136,6 +136,7 @@ const DealsList = () => {
       render: (text) => text || '',
     },
     { title: '# Сделки', dataIndex: 'dealNumber', key: 'dealNumber',
+      render: (_, __, index) => index + 1,
       sorter: (a, b) => Number(a.dealNumber) - Number(b.dealNumber)
     },
     {

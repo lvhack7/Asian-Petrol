@@ -944,7 +944,8 @@ const KZPassport = () => {
     setLoading(true);
     try {
       const { data } = await dealService.getDeals();
-      setDeals(data.filter((deal) => deal.type === 'KZ'));
+      setDeals(data.map((record, index) => ({...record, dealNumber: index+1})))
+        .filter((deal) => deal.type === 'KZ');
     } catch (error) {
       localStorage.removeItem('token');
       notification.error({ message: 'Не удалось получить сделки!' });
