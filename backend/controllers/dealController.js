@@ -42,15 +42,15 @@ exports.updateDeal = async (req, res) => {
 
   try {
     // Validate required fields
-    if (!header || !header.dealNumber) {
-      return res.status(400).json({ message: "Invalid input: missing dealNumber" });
+    if (!header) {
+      return res.status(400).json({ message: "Invalid input" });
     }
 
     // Begin a transaction
     const transaction = await sequelize.transaction();
 
     try {
-      let deal = await Deal.findOne({ where: { dealNumber: header.dealNumber, type: header.type }, transaction });
+      let deal = await Deal.findByPk(header.id, {transaction})
       if (!deal) {
         return res.status(404).json({ message: "Deal not found" });
       }
@@ -205,7 +205,7 @@ exports.updateDeal = async (req, res) => {
 exports.getDeals = async (req, res) => {
   try {
     const deals = await Deal.findAll({
-      order: [['dealNumber', 'ASC']],
+      order: [['id', 'ASC']],
       include: [
         {
           model: Supplier,

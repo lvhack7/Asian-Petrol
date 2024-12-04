@@ -15,6 +15,7 @@ const Buyer = sequelize.define('Buyer', {
   dischargeVolume: { type: DataTypes.TEXT },
   dischargeDate: { type: DataTypes.DATE },
   fillTon: { type: DataTypes.TEXT },
+  destinationStation: {type: DataTypes.TEXT},
   fillDate: { type: DataTypes.DATE },
   unloadVolume: { type: DataTypes.TEXT },
   unloadDate:  { type: DataTypes.DATE }
