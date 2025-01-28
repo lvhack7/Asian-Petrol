@@ -39,10 +39,18 @@ const DealsList = () => {
   const [loading, setLoading] = useState(false)
   const [mapping, setMapping] = useState({})
 
+  const [fuel, setFuel] = useState([])
+  const [factories, setFactories] = useState([])
+  const [buyer, setBuyer] = useState([])
+  const [supplier, setSupplier] = useState([])
+  const [company, setCompany] = useState([])
+  const [companyGroup, setCompanyGroup] = useState([])
+  
 
   useEffect(() => {
     fetchColors();
     fetchDeals();
+    fetchRefs();
   }, []);
 
   useEffect(() => {
@@ -128,6 +136,24 @@ const DealsList = () => {
     }
   }
 
+  const fetchRefs = async () => {
+      try {
+        const fetchFuel = await refService.getRef("fuleType")
+        const fetchFact = await refService.getRef("factory")
+        const fetchBuyer = await refService.getRef("buyer")
+        const fetchSupplier = await refService.getRef("supplier")
+        const fetchCompany = await refService.getRef("company")
+
+        setFuel(fetchFuel.data)
+        setFactories(fetchFact.data)
+        setBuyer(fetchBuyer.data)
+        setSupplier(fetchSupplier.data)
+        setCompany(fetchCompany.data)
+      } catch(e) {
+        console.log(e)
+      }
+  }
+
   const columns = [
     {
       title: 'Тип', // Type
@@ -198,9 +224,18 @@ const DealsList = () => {
         return recordDate.isBetween(startDate, endDate, 'month', '[]'); // Check if within range
       },
     },
-    { title: 'Завод', dataIndex: 'factory', key: 'factory' },
-    { title: 'Вид ГСМ', dataIndex: 'fuelType', key: 'fuelType' },
-    { title: 'Поставщик', dataIndex: ['Supplier', 'name'], key: 'supplierName'},
+    { title: 'Завод', dataIndex: 'factory', key: 'factory',
+      filters: factories.map(factory => ({ text: factory.name, value: factory.name })),
+      onFilter: (value, record) => record.factory === value,
+     },
+    { title: 'Вид ГСМ', dataIndex: 'fuelType', key: 'fuelType',
+      filters: fuel.map(fuel => ({ text: fuel.name, value: fuel.name })),
+      onFilter: (value, record) => record.fuelType === value,
+     },
+    { title: 'Поставщик', dataIndex: ['Supplier', 'name'], key: 'supplierName',
+      filters: supplier.map(supplier => ({ text: supplier.name, value: supplier.name })),
+      onFilter: (value, record) => record.Supplier.name === value,
+    },
     { title: 'Тоннаж Налива', key: 'fillTonns', 
       render: (record) => {
         // Helper function to clean and parse numbers
@@ -286,6 +321,11 @@ const DealsList = () => {
       title: 'Группа компании 1', // First name column
       key: 'companyGroupName1',
       dataIndex: ['CompanyGroup', 'names'],
+      filters: companyGroup.map(company => ({ text: company.name, value: company.name })),
+      onFilter: (value, record) => {
+        const names = record.CompanyGroup.names ? record.CompanyGroup.names.split(',') : [];
+        return names[0] === value;
+      },
       render: (text) => {
         const names = text ? text.split(',') : [];
         return names[0] || ''; // Render the first name
@@ -295,12 +335,20 @@ const DealsList = () => {
       title: 'Группа компании 2', // First name column
       key: 'companyGroupName2',
       dataIndex: ['CompanyGroup', 'names'],
+      filters: companyGroup.map(company => ({ text: company.name, value: company.name })),
+      onFilter: (value, record) => {
+        const names = record.CompanyGroup.names ? record.CompanyGroup.names.split(',') : [];
+        return names[1] === value;
+      },
       render: (text) => {
         const names = text ? text.split(',') : [];
         return names[1] || ''; // Render the first name
       },
     },
-    {title: 'Покупатель', dataIndex: ['Buyer', 'name'], key: 'supplierName'},
+    {title: 'Покупатель', dataIndex: ['Buyer', 'name'], key: 'supplierName',
+      filters: buyer.map(buyer => ({ text: buyer.name, value: buyer.name })),
+      onFilter: (value, record) => record.Buyer.name === value,
+    },
     { title: 'Тоннаж Отгрузки', key: 'fillTonns1',
       render: (record) => {
         // Helper function to clean and parse numbers
