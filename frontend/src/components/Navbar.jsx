@@ -19,7 +19,7 @@ const Navbar = () => {
             Паспорт KG
         </Link>
         </div>
-        <Button type='danger' onClick={() => {
+        <Button danger type="text" onClick={() => {
             localStorage.removeItem('token')
             window.location.reload()
         }}>
