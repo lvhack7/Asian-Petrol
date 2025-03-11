@@ -1,7 +1,6 @@
 const { Deal, Supplier, Buyer, Forwarder, CompanyGroup, Price, Tonn, Payment } = require('../models');
 const sequelize = require('../config/database');
 
-
 const toCommaSeparatedString = (arr) => {
   if (!arr) return null;
   return arr.map(item => item.name).join(',')
@@ -256,7 +255,6 @@ exports.getDeals = async (req, res) => {
     return res.status(500).json({ message: 'Failed to retrieve deals' });
   }
 };
-
 
 const mergeEntries = (prices = [], tonns = []) => {
   const maxLength = Math.max(prices.length, tonns.length);

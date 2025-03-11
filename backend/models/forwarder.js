@@ -22,7 +22,8 @@ const Forwarder = sequelize.define('Forwarder', {
   fillDate: {type: DataTypes.DATE},
   invoiceAmountActualVolumeDate: {type: DataTypes.DATE},
   actualVolumeInvoiceMTDate: {type: DataTypes.DATE},
-  actualShippedVolumeMTDate: {type: DataTypes.DATE}
+  actualShippedVolumeMTDate: {type: DataTypes.DATE},
+  relisted: {type: DataTypes.TEXT}
 });
 
 Forwarder.belongsTo(Deal, { foreignKey: 'dealId' });

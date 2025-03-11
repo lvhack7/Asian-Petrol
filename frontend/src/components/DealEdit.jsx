@@ -301,6 +301,7 @@ const BuyerForm = ({initialValues, onChange}) => {
             form.setFieldsValue({
                 ...initialValues,
                 paymentDate: initialValues?.paymentDate ? dayjs.utc(initialValues.paymentDate) : null,
+                unloadDate: initialValues?.unloadDate ? dayjs.utc(initialValues.unloadDate) : null,
                 Entries: validatedEntries,
                 Payments: validatedPayments
             })
@@ -536,6 +537,9 @@ const ForwarderForm = ({initialValues, onChange}) => {
         if (initialValues) {
             form.setFieldsValue({
                 ...initialValues,
+                actualShippedVolumeMTDate: initialValues?.actualShippedVolumeMTDate ? dayjs.utc(initialValues.actualShippedVolumeMTDate) : null,
+                actualVolumeInvoiceMTDate: initialValues?.actualVolumeInvoiceMTDate ? dayjs.utc(initialValues.actualVolumeInvoiceMTDate) : null,
+                invoiceAmountActualVolumeDate: initialValues?.invoiceAmountActualVolumeDate ? dayjs.utc(initialValues.invoiceAmountActualVolumeDate) : null,
                 fillDate: initialValues?.fillDate ? dayjs.utc(initialValues.fillDate) : null,
             })
         } else {
@@ -654,6 +658,9 @@ const ForwarderForm = ({initialValues, onChange}) => {
                             className='w-full'
                         />
                     </Form.Item>
+                </Form.Item>
+                <Form.Item name="relisted" label="Перевыставлено на" rules={[{ required: true }]}>
+                <Input />
                 </Form.Item>
         </Form>
     )
@@ -857,6 +864,7 @@ const DealEdit = ({ visible, onCreate, onCancel, initialValues }) => {
 
     useEffect(() => {
         if (initialValues) {
+            console.log(initialValues)
             const {dealNumber, date, factory, fuelType, type, sulfur, Supplier, Buyer, Forwarder, CompanyGroup} = initialValues
             form.setFieldsValue({dealNumber, date: date ? dayjs(date) : null, factory, fuelType, sulfur, type});
             

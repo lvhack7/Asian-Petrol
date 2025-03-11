@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, notification } from 'antd';
+import { Form, Input, Button, notification, Card } from 'antd';
 import authService from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,17 +20,48 @@ const LoginForm = () => {
     };
                                 
     return (
-        <Form>
-            <Form.Item label="Username">
-                <Input value={username} onChange={(e) => setUsername(e.target.value)} />
-            </Form.Item>
-            <Form.Item label="Password">
-                <Input.Password value={password} onChange={(e) => setPassword(e.target.value)} />
-            </Form.Item>
-            <Form.Item>
-                <Button type="primary" onClick={handleLogin}>Login</Button>
-            </Form.Item>
+        <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        background: '#f0f2f5'
+      }}
+    >
+      <Card
+        title={<h2 className='text-center text-xl py-2'>Вход</h2>}
+        style={{
+          width: 450,
+          borderRadius: '10px',
+          paddingTop: '8px',
+          paddingBottom: '8px',
+          boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+        }}
+      >
+        <Form layout="vertical">
+          <Form.Item label="Имя пользователя">
+            <Input
+              value={username}
+              size='large'
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item label="Пароль">
+            <Input.Password
+              value={password}
+              size='large'
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" size='large' onClick={handleLogin} block>
+              Войти
+            </Button>
+          </Form.Item>
         </Form>
+      </Card>
+    </div>
     );
 };
 

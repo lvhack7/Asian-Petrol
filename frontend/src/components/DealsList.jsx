@@ -478,7 +478,7 @@ const DealsList = () => {
         Создать новую сделку +
       </Button>
       <Table 
-        className='mt-4' 
+        className='mt-4 overflow-x-auto' 
         dataSource={deals} 
         columns={columns} 
         loading={loading} 

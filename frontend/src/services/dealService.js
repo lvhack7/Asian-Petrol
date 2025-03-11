@@ -20,4 +20,8 @@ const deleteDeal = (id) => {
   return axios.delete(apiUrl+`${id}`, { headers: { Authorization: localStorage.getItem('token') } });
 };
 
-export default { createDeal, updateDeal, getDeals, deleteDeal };
+const exportExcel = (tableHTML, fileName) => {
+  return axios.post(`${apiUrl}/export`, { tableHTML, fileName }, { responseType: 'blob', headers: { Authorization: localStorage.getItem('token') } });
+}
+
+export default { createDeal, updateDeal, getDeals, deleteDeal, exportExcel };
